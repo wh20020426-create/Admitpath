@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdmitPath — 留学选校智能匹配系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  --font-serif:'Noto Serif SC','Songti SC',Georgia,serif;
+  --font-rounded:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',var(--font-sans);
+  --base-font-size:15px;
+  --bg-primary:#F6F7F9;--bg-secondary:#F8FAFC;--bg-card:#FFFFFF;--bg-elevated:#FFFFFF;
+  --text-primary:#1E293B;--text-secondary:#64748B;--text-tertiary:#94A3B8;
+  --border:#E2E8F0;--border-light:#F1F5F9;
+  --primary:#0F172A;--accent:#3B82F6;--accent-strong:#2563EB;--accent-light:rgba(59,130,246,.1);
+  --safe:#10B981;--safe-light:rgba(16,185,129,.1);
+  --match:#F59E0B;--match-light:rgba(245,158,11,.1);
+  --reach:#EF4444;--reach-light:rgba(239,68,68,.1);
+  --shadow-sm:0 1px 3px rgba(15,23,42,.05),0 1px 2px rgba(15,23,42,.03);
+  --shadow-md:0 4px 12px rgba(15,23,42,.06),0 2px 4px rgba(15,23,42,.03);
+  --shadow-lg:0 20px 25px -5px rgba(15,23,42,.08),0 8px 10px -6px rgba(15,23,42,.03);
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-full:9999px;
+  --tr:.2s cubic-bezier(.4,0,.2,1);
+  --nav-h:56px;
+}
+[data-theme="dark"]{
+  --bg-primary:#0B1220;--bg-secondary:#111A2E;--bg-card:#16213A;--bg-elevated:#1E2B4A;
+  --text-primary:#F1F5F9;--text-secondary:#B6C2D6;--text-tertiary:#7C8DA8;
+  --border:#263453;--border-light:#1B2742;
+  --primary:#F8FAFC;--accent:#60A5FA;--accent-strong:#3B82F6;--accent-light:rgba(96,165,250,.14);
+  --safe:#34D399;--safe-light:rgba(52,211,153,.14);
+  --match:#FBBF24;--match-light:rgba(251,191,36,.14);
+  --reach:#F87171;--reach-light:rgba(248,113,113,.14);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.25);--shadow-md:0 4px 12px rgba(0,0,0,.35);--shadow-lg:0 20px 25px -5px rgba(0,0,0,.45);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;font-size:var(--base-font-size)}
+body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);line-height:1.55;min-height:100vh;transition:background-color var(--tr),color var(--tr)}
+body.font-serif{font-family:var(--font-serif)}
+body.font-rounded{font-family:var(--font-rounded)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;color:inherit}
+a{color:var(--accent);text-decoration:none}
+h1,h2,h3,h4{line-height:1.3;font-weight:700}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;font-weight:600;border-radius:var(--radius-sm);transition:all var(--tr);white-space:nowrap;font-size:.875rem;padding:.5rem 1rem}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{opacity:.85;transform:translateY(-1px)}
+[data-theme="dark"] .btn-primary{background:var(--accent-strong)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-accent:hover{background:var(--accent-strong);transform:translateY(-1px)}
+.btn-secondary{background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.btn-ghost{color:var(--text-secondary)}
+.btn-ghost:hover{color:var(--accent);background:var(--accent-light)}
+.btn-danger{background:var(--reach);color:#fff}
+.btn-danger:hover{opacity:.88}
+.btn-lg{padding:.7rem 1.5rem;font-size:.95rem;border-radius:var(--radius-md)}
+.btn-sm{padding:.3rem .7rem;font-size:.78rem}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+.btn-block{width:100%}
+
+/* ---------- navbar ---------- */
+.navbar{position:sticky;top:0;z-index:200;height:var(--nav-h);background:var(--bg-card);border-bottom:1px solid var(--border);backdrop-filter:blur(8px)}
+.navbar-inner{max-width:1440px;margin:0 auto;height:100%;display:flex;align-items:center;gap:1rem;padding:0 1.25rem}
+.logo{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.05rem;color:var(--text-primary);cursor:pointer;flex-shrink:0}
+.logo-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#8B5CF6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:700}
+.nav-links{display:flex;align-items:center;gap:.15rem;margin-left:.5rem}
+.nav-link{padding:.42rem .8rem;border-radius:var(--radius-sm);font-size:.86rem;font-weight:500;color:var(--text-secondary);transition:all var(--tr)}
+.nav-link:hover{color:var(--text-primary);background:var(--border-light)}
+.nav-link.active{color:var(--accent);background:var(--accent-light)}
+.nav-spacer{flex:1}
+.nav-actions{display:flex;align-items:center;gap:.5rem}
+.icon-btn{width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);transition:all var(--tr);border:1px solid transparent}
+.icon-btn:hover{background:var(--border-light);color:var(--text-primary)}
+.account-btn{display:flex;align-items:center;gap:.45rem;padding:.35rem .8rem;border-radius:var(--radius-full);background:var(--primary);color:#fff;font-size:.83rem;font-weight:600;transition:all var(--tr)}
+.account-btn:hover{opacity:.85}
+[data-theme="dark"] .account-btn{background:var(--accent-strong)}
+.account-btn .avatar{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
+.account-menu-wrap{position:relative}
+.account-menu{position:absolute;right:0;top:calc(100% + 8px);width:230px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);padding:.4rem;z-index:300;display:none}
+.account-menu.open{display:block;animation:fadeIn .15s ease}
+.account-menu-header{padding:.6rem .7rem;border-bottom:1px solid var(--border-light);margin-bottom:.3rem}
+.account-menu-header .name{font-weight:600;font-size:.9rem}
+.account-menu-header .email{font-size:.75rem;color:var(--text-tertiary);word-break:break-all}
+.account-menu-item{display:flex;align-items:center;gap:.55rem;width:100%;padding:.5rem .7rem;border-radius:var(--radius-sm);font-size:.85rem;color:var(--text-secondary);text-align:left;transition:all var(--tr)}
+.account-menu-item:hover{background:var(--border-light);color:var(--text-primary)}
+.account-menu-item.danger{color:var(--reach)}
+.account-menu-item.danger:hover{background:var(--reach-light)}
+
+/* ---------- app layout ---------- */
+.app-shell{display:none;min-height:100vh}
+.app-shell.active{display:block}
+.layout{max-width:1440px;margin:0 auto;padding:1rem 1.25rem 2rem;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:1rem;align-items:start}
+.main-col{min-width:0}
+.page{display:none;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-sm)}
+
+/* ---------- auth view ---------- */
+.auth-view{display:none;min-height:100vh;align-items:center;justify-content:center;padding:1.5rem;position:relative;overflow:hidden}
+.auth-view.active{display:flex}
+.auth-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1E3A8A 0%,#3B82F6 45%,#8B5CF6 100%)}
+.auth-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.14),transparent 40%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.1),transparent 40%)}
+.auth-card{position:relative;width:100%;max-width:400px;background:var(--bg-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:1.8rem;animation:fadeIn .35s ease}
+.auth-brand{display:flex;align-items:center;gap:.6rem;justify-content:center;margin-bottom:.35rem}
+.auth-brand .logo-icon{width:36px;height:36px;font-size:1.1rem}
+.auth-brand span{font-size:1.25rem;font-weight:700}
+.auth-slogan{text-align:center;font-size:.82rem;color:var(--text-tertiary);margin-bottom:1.2rem}
+.auth-tabs{display:flex;background:var(--border-light);border-radius:var(--radius-sm);padding:3px;margin-bottom:1.1rem}
+.auth-tab{flex:1;padding:.45rem;border-radius:6px;font-size:.86rem;font-weight:600;color:var(--text-secondary);transition:all var(--tr)}
+.auth-tab.active{background:var(--bg-card);color:var(--text-primary);box-shadow:var(--shadow-sm)}
+.auth-pane{display:none}
+.auth-pane.active{display:block;animation:fadeIn .25s ease}
+.auth-links{display:flex;justify-content:space-between;align-items:center;margin-top:.7rem;font-size:.8rem}
+.auth-note{margin-top:1rem;padding:.6rem .8rem;background:var(--accent-light);border-radius:var(--radius-sm);font-size:.75rem;color:var(--text-secondary);line-height:1.5}
+.auth-note b{color:var(--accent)}
+
+/* ---------- form elements ---------- */
+.form-group{margin-bottom:.85rem}
+.form-label{display:block;font-size:.82rem;font-weight:600;margin-bottom:.35rem;color:var(--text-primary)}
+.form-label .req{color:var(--reach);margin-left:2px}
+.form-hint{font-size:.72rem;color:var(--text-tertiary);margin-top:.25rem}
+.form-input,.form-select,textarea.form-input{width:100%;padding:.5rem .75rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:.87rem;background:var(--bg-card);transition:border-color var(--tr),box-shadow var(--tr);outline:none}
+.form-input:focus,.form-select:focus,textarea.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.form-input::placeholder{color:var(--text-tertiary)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.form-row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.radio-group,.checkbox-group{display:flex;flex-wrap:wrap;gap:.45rem}
+.radio-chip,.checkbox-chip{position:relative}
+.radio-chip input,.checkbox-chip input{position:absolute;opacity:0;pointer-events:none}
+.radio-chip label,.checkbox-chip label{display:inline-flex;align-items:center;padding:.4rem .8rem;border:1.5px solid var(--border);border-radius:var(--radius-full);font-size:.8rem;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all var(--tr);user-select:none}
+.radio-chip input:checked+label,.checkbox-chip input:checked+label{border-color:var(--accent);background:var(--accent-light);color:var(--accent);font-weight:600}
+.radio-chip label:hover,.checkbox-chip label:hover{border-color:var(--accent)}
+.field-error{border-color:var(--reach)!important}
+.error-text{color:var(--reach);font-size:.75rem;margin-top:.3rem;display:none}
+.error-text.show{display:block}
+.pwd-strength{height:4px;border-radius:2px;background:var(--border-light);margin-top:.4rem;overflow:hidden}
+.pwd-strength>div{height:100%;width:0;border-radius:2px;transition:all .3s}
+.switch{position:relative;width:38px;height:22px;flex-shrink:0}
+.switch input{position:absolute;opacity:0}
+.switch .track{position:absolute;inset:0;background:var(--border);border-radius:var(--radius-full);transition:all var(--tr);cursor:pointer}
+.switch .track::after{content:'';position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:all var(--tr);box-shadow:var(--shadow-sm)}
+.switch input:checked+.track{background:var(--accent)}
+.switch input:checked+.track::after{transform:translateX(16px)}
+</style>
+<style>
+/* ---------- home ---------- */
+.hero{padding:1.6rem 1.8rem 1.4rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;right:-80px;top:-80px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,var(--accent-light),transparent 70%)}
+.hero-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.28rem .75rem;background:var(--accent-light);color:var(--accent);border-radius:var(--radius-full);font-size:.75rem;font-weight:600;margin-bottom:.7rem}
+.hero h1{font-size:1.85rem;letter-spacing:-.02em;margin-bottom:.5rem}
+.hero p{color:var(--text-secondary);font-size:.92rem;max-width:560px;margin-bottom:1.1rem}
+.hero-actions{display:flex;gap:.7rem;flex-wrap:wrap}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin-top:1.3rem}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:.8rem 1rem;box-shadow:var(--shadow-sm)}
+.stat-number{font-size:1.35rem;font-weight:700;color:var(--accent)}
+.stat-label{font-size:.75rem;color:var(--text-tertiary)}
+.feature-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-top:.7rem}
+.feature-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:.9rem 1rem;box-shadow:var(--shadow-sm);transition:all var(--tr)}
+.feature-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.feature-icon{width:32px;height:32px;border-radius:8px;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:.5rem}
+.feature-card h3{font-size:.9rem;margin-bottom:.25rem}
+.feature-card p{font-size:.78rem;color:var(--text-secondary)}
+.section-title-row{display:flex;align-items:center;justify-content:space-between;margin:1.2rem 0 .6rem}
+.section-title-row h2{font-size:1.05rem}
+
+/* ---------- assess form (single page, compact) ---------- */
+.assess-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.8rem;flex-wrap:wrap}
+.assess-head h2{font-size:1.2rem}
+.assess-head p{font-size:.82rem;color:var(--text-tertiary)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.form-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem 1.1rem;box-shadow:var(--shadow-sm)}
+.form-section.full{grid-column:1/-1}
+.form-section-head{display:flex;align-items:center;gap:.55rem;margin-bottom:.8rem}
+.step-num{width:22px;height:22px;border-radius:6px;background:var(--accent-light);color:var(--accent);font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.form-section-head h3{font-size:.92rem}
+.form-section-head span{font-size:.72rem;color:var(--text-tertiary)}
+.assess-bar{position:sticky;bottom:0;z-index:50;margin-top:.9rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);padding:.7rem 1rem;display:flex;align-items:center;gap:.8rem}
+.assess-bar .hint{font-size:.75rem;color:var(--text-tertiary);flex:1}
+.range-row{display:flex;align-items:center;gap:.7rem}
+.range-row input[type=range]{flex:1;padding:0;height:6px;accent-color:var(--accent)}
+
+/* ---------- loading / AI ---------- */
+.loading-wrap{max-width:520px;margin:3.5rem auto;text-align:center}
+.ai-brain{width:74px;height:74px;margin:0 auto 1.1rem;border-radius:22px;background:linear-gradient(135deg,var(--accent),#8B5CF6);display:flex;align-items:center;justify-content:center;animation:pulse 1.6s ease-in-out infinite;box-shadow:0 8px 30px rgba(59,130,246,.35)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.loading-text{font-size:1.05rem;font-weight:600;margin-bottom:.3rem}
+.loading-subtext{font-size:.82rem;color:var(--text-tertiary);margin-bottom:1.2rem;min-height:1.2em}
+.loading-progress{height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;margin-bottom:1.4rem}
+.loading-progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),#8B5CF6);border-radius:3px;transition:width .25s ease}
+.ai-steps{text-align:left;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:.9rem 1.1rem;box-shadow:var(--shadow-sm)}
+.ai-step{display:flex;align-items:center;gap:.6rem;padding:.32rem 0;font-size:.84rem;color:var(--text-tertiary);transition:color .3s}
+.ai-step.active{color:var(--text-primary)}
+.ai-step.done{color:var(--safe)}
+.ai-step .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.6rem}
+.ai-step.active .dot{border-color:var(--accent);animation:spin 1s linear infinite;border-top-color:transparent}
+.ai-step.done .dot{border-color:var(--safe);background:var(--safe);color:#fff}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- results ---------- */
+.overview-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:.8rem}
+.overview-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:.75rem 1rem;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:.8rem}
+.overview-num{font-size:1.5rem;font-weight:700}
+.overview-meta{font-size:.74rem;color:var(--text-tertiary)}
+.overview-label{font-size:.84rem;font-weight:600}
+.text-safe{color:var(--safe)}.text-match{color:var(--match)}.text-reach{color:var(--reach)}
+.ai-report{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-md);padding:.9rem 1.1rem;margin-bottom:.8rem;box-shadow:var(--shadow-sm)}
+.ai-report-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
+.ai-report-head .tag{font-size:.68rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),#8B5CF6);padding:.15rem .5rem;border-radius:var(--radius-full)}
+.ai-report-head span{font-size:.72rem;color:var(--text-tertiary)}
+.ai-report-body{font-size:.86rem;color:var(--text-secondary);line-height:1.7;white-space:pre-line}
+.filter-bar{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:.7rem 1rem;margin-bottom:.8rem;box-shadow:var(--shadow-sm)}
+.filter-bar-top{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.filter-bar-top .spacer{flex:1}
+.filter-body{display:none;padding-top:.8rem;margin-top:.7rem;border-top:1px solid var(--border-light)}
+.filter-body.open{display:block}
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.9rem}
+.filter-grid h4{font-size:.78rem;color:var(--text-tertiary);margin-bottom:.4rem;font-weight:600}
+.results-count{font-size:.85rem;color:var(--text-secondary);font-weight:500}
+.sort-select{padding:.4rem .6rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:var(--bg-card);outline:none}
+.university-list{display:flex;flex-direction:column;gap:.7rem}
+.university-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:.9rem 1.1rem;display:flex;gap:1rem;cursor:pointer;transition:all var(--tr);box-shadow:var(--shadow-sm)}
+.university-card:hover{box-shadow:var(--shadow-md);border-color:var(--accent)}
+.university-card-left{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:76px;padding-right:1rem;border-right:1px solid var(--border-light)}
+.probability-number{font-size:1.5rem;font-weight:700}
+.probability-label{font-size:.72rem;font-weight:600;margin:.1rem 0 .4rem}
+.progress-track{width:64px;height:5px;background:var(--border-light);border-radius:3px;overflow:hidden}
+.progress-fill-bar{height:100%;border-radius:3px;transition:width .8s ease}
+.badge{display:inline-flex;align-items:center;padding:.14rem .5rem;border-radius:var(--radius-full);font-size:.7rem;font-weight:500;background:var(--border-light);color:var(--text-secondary)}
+.card-details{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.card-details.expanded{max-height:900px;margin-top:.7rem}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem;margin-bottom:.8rem}
+.detail-item{background:var(--border-light);padding:.5rem .7rem;border-radius:var(--radius-sm)}
+.detail-item h4{font-size:.68rem;color:var(--text-tertiary);margin-bottom:.15rem;font-weight:500}
+.detail-item p{font-size:.85rem;font-weight:600}
+.program-item{background:var(--border-light);padding:.6rem .8rem;border-radius:var(--radius-sm);margin-bottom:.5rem}
+.program-item h4{font-size:.83rem;margin-bottom:.2rem}
+.program-meta{font-size:.72rem;color:var(--text-tertiary);margin-bottom:.35rem}
+.program-reqs{display:flex;flex-wrap:wrap;gap:.35rem}
+.req-tag{font-size:.68rem;padding:.12rem .45rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-full);color:var(--text-secondary)}
+.suggestions{background:var(--match-light);border-radius:var(--radius-sm);padding:.6rem .8rem;margin-top:.6rem}
+.suggestions h4{font-size:.8rem;color:var(--match);margin-bottom:.3rem}
+.suggestions ul{list-style:none}
+.suggestions li{font-size:.78rem;color:var(--text-secondary);padding-left:1rem;position:relative;margin-bottom:.15rem}
+.suggestions li::before{content:'•';position:absolute;left:.2rem;color:var(--match)}
+.empty-state{text-align:center;padding:2.5rem 1.5rem}
+.empty-state-icon{font-size:2.2rem;margin-bottom:.6rem}
+.empty-state h3{margin-bottom:.3rem}
+.empty-state p{color:var(--text-tertiary);font-size:.85rem;margin-bottom:1rem}
+
+/* ---------- news rail ---------- */
+.news-rail{position:sticky;top:calc(var(--nav-h) + 1rem);display:flex;flex-direction:column;max-height:calc(100vh - var(--nav-h) - 2rem)}
+.news-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;overflow:hidden;flex:1;min-height:0}
+.news-head{display:flex;align-items:center;gap:.5rem;padding:.75rem .95rem;border-bottom:1px solid var(--border-light)}
+.news-head h3{font-size:.92rem;display:flex;align-items:center;gap:.4rem}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--safe);animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.news-head .spacer{flex:1}
+.news-status{font-size:.68rem;color:var(--text-tertiary);padding:.35rem .95rem;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:.4rem}
+.news-list{overflow-y:auto;flex:1;min-height:200px}
+.news-item{display:block;padding:.65rem .95rem;border-bottom:1px solid var(--border-light);transition:background var(--tr);color:var(--text-primary)}
+.news-item:hover{background:var(--border-light)}
+.news-item-title{font-size:.82rem;font-weight:600;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:.3rem}
+.news-item-meta{display:flex;align-items:center;gap:.45rem;font-size:.68rem;color:var(--text-tertiary)}
+.news-source{padding:.08rem .4rem;border-radius:var(--radius-full);background:var(--accent-light);color:var(--accent);font-weight:600}
+.news-foot{padding:.55rem .95rem;border-top:1px solid var(--border-light);font-size:.7rem;color:var(--text-tertiary);text-align:center}
+.news-skeleton{padding:.65rem .95rem;border-bottom:1px solid var(--border-light)}
+.skel{height:12px;border-radius:4px;background:linear-gradient(90deg,var(--border-light) 25%,var(--border) 50%,var(--border-light) 75%);background-size:200% 100%;animation:shimmer 1.3s infinite;margin-bottom:.45rem}
+@keyframes shimmer{to{background-position:-200% 0}}
+
+/* ---------- settings ---------- */
+.settings-layout{display:grid;grid-template-columns:200px minmax(0,1fr);gap:.9rem;align-items:start}
+.settings-menu{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:.5rem;box-shadow:var(--shadow-sm);position:sticky;top:calc(var(--nav-h) + 1rem)}
+.settings-menu-item{display:flex;align-items:center;gap:.55rem;width:100%;padding:.55rem .75rem;border-radius:var(--radius-sm);font-size:.85rem;color:var(--text-secondary);text-align:left;transition:all var(--tr);font-weight:500}
+.settings-menu-item:hover{background:var(--border-light);color:var(--text-primary)}
+.settings-menu-item.active{background:var(--accent-light);color:var(--accent);font-weight:600}
+.settings-panel{display:none}
+.settings-panel.active{display:block;animation:fadeIn .25s ease}
+.settings-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.1rem 1.2rem;box-shadow:var(--shadow-sm);margin-bottom:.8rem}
+.settings-card>h3{font-size:.95rem;margin-bottom:.2rem}
+.settings-card>.desc{font-size:.78rem;color:var(--text-tertiary);margin-bottom:.9rem}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.65rem 0;border-bottom:1px solid var(--border-light)}
+.setting-row:last-child{border-bottom:none}
+.setting-row .info{min-width:0}
+.setting-row .info .t{font-size:.87rem;font-weight:600}
+.setting-row .info .d{font-size:.75rem;color:var(--text-tertiary);margin-top:.1rem}
+.setting-row .control{flex-shrink:0;display:flex;align-items:center;gap:.5rem}
+.seg-control{display:flex;background:var(--border-light);border-radius:var(--radius-sm);padding:3px}
+.seg-btn{padding:.32rem .75rem;border-radius:6px;font-size:.78rem;font-weight:500;color:var(--text-secondary);transition:all var(--tr)}
+.seg-btn.active{background:var(--bg-card);color:var(--text-primary);box-shadow:var(--shadow-sm);font-weight:600}
+.faq-item{border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:.5rem;overflow:hidden}
+.faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.7rem .9rem;font-size:.86rem;font-weight:600;text-align:left;color:var(--text-primary)}
+.faq-q svg{transition:transform .3s;flex-shrink:0}
+.faq-item.open .faq-q svg{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;font-size:.82rem;color:var(--text-secondary);line-height:1.7}
+.faq-item.open .faq-a{max-height:300px}
+.faq-a>div{padding:0 .9rem .8rem}
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.7rem}
+.contact-card{border:1px solid var(--border);border-radius:var(--radius-sm);padding:.8rem;text-align:center}
+.contact-card .ic{width:34px;height:34px;margin:0 auto .4rem;border-radius:8px;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center}
+.contact-card .t{font-size:.82rem;font-weight:600}
+.contact-card .d{font-size:.74rem;color:var(--text-tertiary);margin-top:.15rem;word-break:break-all}
+.profile-head{display:flex;align-items:center;gap:.9rem;margin-bottom:1rem}
+.profile-avatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#8B5CF6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700}
+.profile-head .name{font-size:1.05rem;font-weight:700}
+.profile-head .meta{font-size:.76rem;color:var(--text-tertiary)}
+.history-item{display:flex;align-items:center;gap:.8rem;padding:.65rem .75rem;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:.5rem;transition:all var(--tr)}
+.history-item:hover{border-color:var(--accent)}
+.history-item .info{flex:1;min-width:0}
+.history-item .t{font-size:.85rem;font-weight:600}
+.history-item .d{font-size:.72rem;color:var(--text-tertiary)}
+
+/* ---------- modal & toast ---------- */
+.modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(3px);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-mask.open{display:flex;animation:fadeIn .2s ease}
+.modal{background:var(--bg-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:100%;max-width:440px;max-height:85vh;overflow-y:auto;padding:1.4rem;animation:slideUp .25s ease}
+.modal.wide{max-width:560px}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.modal-head h3{font-size:1.05rem}
+.modal-close{width:30px;height:30px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-tertiary)}
+.modal-close:hover{background:var(--border-light);color:var(--text-primary)}
+#toastWrap{position:fixed;top:calc(var(--nav-h) + 10px);left:50%;transform:translateX(-50%);z-index:600;display:flex;flex-direction:column;gap:.5rem;align-items:center;pointer-events:none}
+.toast{display:flex;align-items:center;gap:.5rem;background:var(--primary);color:#fff;padding:.6rem 1.1rem;border-radius:var(--radius-full);font-size:.83rem;font-weight:500;box-shadow:var(--shadow-lg);animation:slideUp .25s ease;max-width:90vw}
+.toast.success{background:var(--safe)}
+.toast.error{background:var(--reach)}
+
+/* ---------- content pages (about/study/ielts/courses) ---------- */
+.timeline{display:flex;flex-direction:column}
+.timeline-item{display:flex;gap:1rem;padding:.6rem 0;border-bottom:1px solid var(--border-light)}
+.timeline-item:last-child{border-bottom:none}
+.timeline-year{flex-shrink:0;width:64px;font-weight:700;font-size:.85rem;color:var(--accent)}
+.timeline-text{font-size:.85rem;color:var(--text-secondary);line-height:1.6}
+.compare-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.compare-table th{background:var(--border-light);padding:.65rem .9rem;text-align:left;font-weight:600}
+.compare-table td{padding:.6rem .9rem;border-top:1px solid var(--border-light);color:var(--text-secondary)}
+.compare-table td:first-child{font-weight:600;color:var(--text-primary);white-space:nowrap}
+.course-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.8rem}
+.course-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.1rem 1.2rem;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;transition:all var(--tr)}
+.course-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--accent)}
+.course-tag{align-self:flex-start;font-size:.68rem;font-weight:700;padding:.18rem .55rem;border-radius:var(--radius-full);background:var(--accent-light);color:var(--accent);margin-bottom:.6rem}
+.course-card h3{font-size:1rem;margin-bottom:.4rem}
+.course-price{font-size:1.6rem;font-weight:700;color:var(--accent);margin-bottom:.7rem}
+.course-price span{font-size:.78rem;font-weight:400;color:var(--text-tertiary)}
+.course-card ul{list-style:none;flex:1;margin-bottom:1rem}
+.course-card li{font-size:.82rem;color:var(--text-secondary);padding:.3rem 0 .3rem 1.2rem;position:relative}
+.course-card li::before{content:'✓';position:absolute;left:0;color:var(--safe);font-weight:700}
+
+/* ---------- responsive ---------- */
+@media(max-width:1100px){
+  .layout{grid-template-columns:1fr}
+  .news-rail{position:static;max-height:none}
+  .news-list{max-height:360px}
+}
+@media(max-width:860px){
+  .form-grid{grid-template-columns:1fr}
+  .settings-layout{grid-template-columns:1fr}
+  .settings-menu{position:static;display:flex;overflow-x:auto;gap:.3rem}
+  .settings-menu-item{white-space:nowrap;width:auto}
+  .nav-links{display:none}
+  .hero-stats{grid-template-columns:repeat(2,1fr)}
+  .feature-row{grid-template-columns:1fr}
+  .overview-strip{grid-template-columns:1fr}
+  .form-row,.form-row-3{grid-template-columns:1fr}
+  .university-card{flex-direction:column}
+  .university-card-left{flex-direction:row;border-right:none;border-bottom:1px solid var(--border-light);padding:0 0 .6rem;gap:.7rem;min-width:0}
+}
+</style>
+</head>
+<body>
+<div id="toastWrap"></div>
+
+<!-- ============ 登录 / 注册（未登录时的门禁页） ============ -->
+<div class="auth-view active" id="authView">
+  <div class="auth-bg"></div>
+  <div class="auth-card">
+    <div class="auth-brand"><div class="logo-icon">A</div><span>AdmitPath</span></div>
+    <p class="auth-slogan" data-i18n="auth.slogan">AI 驱动的留学选校智能匹配系统</p>
+    <div class="auth-tabs" id="authTabs">
+      <button class="auth-tab active" data-tab="login" onclick="Auth.switchTab('login')" data-i18n="auth.loginTab">登录</button>
+      <button class="auth-tab" data-tab="register" onclick="Auth.switchTab('register')" data-i18n="auth.registerTab">注册</button>
+    </div>
+
+    <!-- 登录 -->
+    <div class="auth-pane active" id="pane-login">
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth.account">账号 / 邮箱</label>
+        <input class="form-input" id="loginAccount" data-i18n-ph="auth.accountPh" placeholder="请输入用户名或邮箱" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth.password">密码</label>
+        <input class="form-input" type="password" id="loginPassword" data-i18n-ph="auth.passwordPh" placeholder="请输入密码" autocomplete="current-password" onkeydown="if(event.key==='Enter')Auth.login()">
+      </div>
+      <button class="btn btn-accent btn-block btn-lg" onclick="Auth.login()" data-i18n="auth.loginBtn">登 录</button>
+      <div class="auth-links">
+        <button class="btn-ghost btn btn-sm" onclick="Auth.openReset()" data-i18n="auth.forgot">忘记密码？</button>
+        <button class="btn-ghost btn btn-sm" onclick="Auth.switchTab('register')" data-i18n="auth.noAccount">没有账号？去注册</button>
+      </div>
+    </div>
+
+    <!-- 注册 -->
+    <div class="auth-pane" id="pane-register">
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth.username">用户名</label>
+        <input class="form-input" id="regUsername" data-i18n-ph="auth.usernamePh" placeholder="2-20 个字符，用于登录和展示" maxlength="20">
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth.email">邮箱</label>
+        <input class="form-input" type="email" id="regEmail" data-i18n-ph="auth.emailPh" placeholder="用于登录和找回密码">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" data-i18n="auth.setPassword">设置密码</label>
+          <input class="form-input" type="password" id="regPassword" data-i18n-ph="auth.setPasswordPh" placeholder="至少 8 位，含字母和数字" oninput="Auth.checkStrength(this.value)">
+          <div class="pwd-strength"><div id="pwdStrengthBar"></div></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="auth.confirmPassword">确认密码</label>
+          <input class="form-input" type="password" id="regPassword2" data-i18n-ph="auth.confirmPasswordPh" placeholder="再次输入密码" onkeydown="if(event.key==='Enter')Auth.register()">
+        </div>
+      </div>
+      <div class="form-group" style="display:flex;align-items:flex-start;gap:.45rem;font-size:.76rem;color:var(--text-secondary);">
+        <input type="checkbox" id="regAgree" style="margin-top:3px;accent-color:var(--accent);">
+        <label for="regAgree"><span data-i18n="auth.agree">我已阅读并同意</span><a href="javascript:void(0)" onclick="App.openModal('termsModal')" data-i18n="auth.terms">《用户协议》</a><span data-i18n="auth.and">和</span><a href="javascript:void(0)" onclick="App.openModal('privacyModal')" data-i18n="auth.privacy">《隐私政策》</a></label>
+      </div>
+      <button class="btn btn-accent btn-block btn-lg" onclick="Auth.register()" data-i18n="auth.registerBtn">注 册</button>
+      <div class="auth-links">
+        <span></span>
+        <button class="btn-ghost btn btn-sm" onclick="Auth.switchTab('login')" data-i18n="auth.hasAccount">已有账号？去登录</button>
+      </div>
+    </div>
+
+    <div class="auth-note" data-i18n="auth.note">注册账号并登录后，才能使用 AI 选校评估、院校资讯等全部功能。你的数据仅保存在本机浏览器中。</div>
+  </div>
+</div>
+
+<!-- ============ 主应用 ============ -->
+<div class="app-shell" id="appShell">
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a class="logo" onclick="App.go('home')"><div class="logo-icon">A</div>AdmitPath</a>
+      <div class="nav-links">
+        <button class="nav-link active" data-nav="home" onclick="App.go('home')" data-i18n="nav.home">首页</button>
+        <button class="nav-link" data-nav="about" onclick="App.go('about')" data-i18n="nav.about">公司简介</button>
+        <button class="nav-link" data-nav="study" onclick="App.go('study')" data-i18n="nav.study">留学咨询</button>
+        <button class="nav-link" data-nav="ielts" onclick="App.go('ielts')" data-i18n="nav.ielts">托雅咨询</button>
+        <button class="nav-link" data-nav="courses" onclick="App.go('courses')" data-i18n="nav.courses">付费课程</button>
+        <button class="nav-link" data-nav="assess" onclick="App.go('assess')" data-i18n="nav.assess" style="display:none;">智能评估</button>
+        <button class="nav-link" data-nav="results" id="navResults" onclick="App.go('results')" data-i18n="nav.results" style="display:none;">匹配结果</button>
+        <button class="nav-link" data-nav="settings" onclick="App.go('settings')" data-i18n="nav.settings" style="display:none;">设置</button>
+      </div>
+      <div class="nav-spacer"></div>
+      <div class="nav-actions">
+        <button class="icon-btn" id="themeToggle" onclick="Settings.toggleTheme()" aria-label="主题">
+          <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
+        <button class="icon-btn" onclick="App.go('settings')" aria-label="设置">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+        <div class="account-menu-wrap">
+          <button class="account-btn" id="accountBtn" onclick="App.toggleAccountMenu(event)">
+            <span class="avatar" id="accountAvatar">U</span>
+            <span id="accountName">Account</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="account-menu" id="accountMenu">
+            <div class="account-menu-header">
+              <div class="name" id="menuName">—</div>
+              <div class="email" id="menuEmail">—</div>
+            </div>
+            <button class="account-menu-item" onclick="App.closeAccountMenu();App.go('settings','account')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span data-i18n="menu.profile">账号与个人资料</span>
+            </button>
+            <button class="account-menu-item" onclick="App.closeAccountMenu();App.openHistory()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span data-i18n="menu.history">我的评估记录</span>
+            </button>
+            <button class="account-menu-item" onclick="App.closeAccountMenu();App.go('settings')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"></path></svg>
+              <span data-i18n="menu.settings">系统设置</span>
+            </button>
+            <button class="account-menu-item danger" onclick="Auth.logout()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <span data-i18n="menu.logout">退出登录</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="layout">
+    <main class="main-col">
+
+      <!-- 首页 -->
+      <section class="page active" id="page-home">
+        <div class="card hero">
+          <div class="hero-badge"><span>✦</span><span data-i18n="home.badge">AI 驱动的选校匹配引擎</span></div>
+          <h1 data-i18n="home.title">找到属于你的理想大学</h1>
+          <p data-i18n="home.subtitle">基于你的学术背景，AI 大脑智能分析全球 250+ 所顶尖院校，精准预测录取概率，让留学申请不再盲目。</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary btn-lg" onclick="App.go('assess')">
+              <span data-i18n="home.start">开始智能评估</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+            <button class="btn btn-secondary btn-lg" onclick="App.go('settings')">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"></path></svg>
+              <span data-i18n="home.openSettings">系统设置</span>
+            </button>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card"><div class="stat-number">250+</div><div class="stat-label" data-i18n="home.stat1">顶尖院校</div></div>
+          <div class="stat-card"><div class="stat-number">95%</div><div class="stat-label" data-i18n="home.stat2">匹配精准度</div></div>
+          <div class="stat-card"><div class="stat-number">49</div><div class="stat-label" data-i18n="home.stat3">国家与地区</div></div>
+          <div class="stat-card"><div class="stat-number">AI</div><div class="stat-label" data-i18n="home.stat4">智能分析引擎</div></div>
+        </div>
+        <div class="section-title-row"><h2 data-i18n="home.features">核心功能</h2></div>
+        <div class="feature-row">
+          <div class="feature-card">
+            <div class="feature-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"></path><line x1="9" y1="22" x2="15" y2="22"></line></svg></div>
+            <h3 data-i18n="home.f1t">AI 智能匹配</h3>
+            <p data-i18n="home.f1d">接入 AI 大脑深度分析你的背景，按保底 / 匹配 / 冲刺三档生成选校方案。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"></path><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"></path></svg></div>
+            <h3 data-i18n="home.f2t">院校数据库</h3>
+            <p data-i18n="home.f2d">覆盖全球 49 个国家与地区 250+ 所名校的录取门槛、学费、项目与截止日期。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0V9"></path><path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6z"></path></svg></div>
+            <h3 data-i18n="home.f3t">实时院校资讯</h3>
+            <p data-i18n="home.f3d">右侧资讯栏联网自动更新全球大学新闻与留学动态，打开链接直达原文。</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 智能评估（单页紧凑表单） -->
+      <section class="page" id="page-assess">
+        <div class="assess-head">
+          <div>
+            <h2 data-i18n="assess.title">智能选校评估</h2>
+            <p data-i18n="assess.subtitle">填写以下信息，AI 大脑将为你分析并生成专属选校方案（带 * 为必填）</p>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="App.resetForm()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>
+            <span data-i18n="assess.reset">清空重填</span>
+          </button>
+        </div>
+        <div class="form-grid" id="assessForm"></div>
+        <div class="assess-bar">
+          <span class="hint" data-i18n="assess.hint">提交后 AI 将分析你的背景并比对 250+ 所院校录取数据</span>
+          <button class="btn btn-secondary" onclick="App.resetForm()" data-i18n="assess.reset2">重置</button>
+          <button class="btn btn-accent btn-lg" id="submitBtn" onclick="App.submit()">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"></path></svg>
+            <span data-i18n="assess.submit">开始 AI 分析</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- AI 分析中 -->
+      <section class="page" id="page-loading">
+        <div class="loading-wrap">
+          <div class="ai-brain">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"></path><line x1="9" y1="22" x2="15" y2="22"></line></svg>
+          </div>
+          <div class="loading-text" data-i18n="loading.title">AI 大脑正在思考分析…</div>
+          <div class="loading-subtext" id="loadingSubtext">正在接入 AI 引擎</div>
+          <div class="loading-progress"><div class="loading-progress-bar" id="loadingBar"></div></div>
+          <div class="ai-steps" id="aiSteps"></div>
+        </div>
+      </section>
+
+      <!-- 匹配结果 -->
+      <section class="page" id="page-results">
+        <div class="assess-head">
+          <div>
+            <h2 data-i18n="results.title">AI 匹配结果</h2>
+            <p id="resultsSummary" style="font-size:.82rem;color:var(--text-tertiary);"></p>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="App.go('assess')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span data-i18n="results.reassess">重新评估</span>
+          </button>
+        </div>
+        <div class="overview-strip" id="overviewStrip"></div>
+        <div class="ai-report" id="aiReport">
+          <div class="ai-report-head">
+            <span class="tag">AI</span>
+            <strong style="font-size:.88rem;" data-i18n="results.aiReport">智能分析报告</strong>
+            <span id="aiReportSource"></span>
+          </div>
+          <div class="ai-report-body" id="aiReportBody"></div>
+        </div>
+        <div class="filter-bar">
+          <div class="filter-bar-top">
+            <span class="results-count" id="resultsCount"></span>
+            <div class="spacer"></div>
+            <button class="btn btn-secondary btn-sm" id="filterToggleBtn" onclick="App.toggleFilterBar()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+              <span data-i18n="results.filter">筛选</span>
+            </button>
+            <select class="sort-select" id="sortSelect" onchange="App.handleSort(this.value)">
+              <option value="probability" data-i18n="results.sortProb">按匹配概率</option>
+              <option value="rank" data-i18n="results.sortRank">按 QS 排名</option>
+              <option value="tuition" data-i18n="results.sortTuition">按学费从低到高</option>
+            </select>
+          </div>
+          <div class="filter-body" id="filterBody">
+            <div class="filter-grid" id="filterGrid"></div>
+            <div style="margin-top:.8rem;display:flex;gap:.6rem;justify-content:flex-end;">
+              <button class="btn btn-ghost btn-sm" onclick="App.clearFilters()" data-i18n="results.clearFilter">清除全部筛选</button>
+            </div>
+          </div>
+        </div>
+        <div class="university-list" id="universityList"></div>
+      </section>
+
+      <!-- 公司简介 -->
+      <section class="page" id="page-about">
+        <div class="card hero">
+          <div class="hero-badge"><span>✦</span><span>关于 AdmitPath</span></div>
+          <h1>用 AI 让留学申请<br>更聪明、更确定</h1>
+          <p>AdmitPath 成立于 2021 年，是一家专注于留学申请智能化的教育科技公司。我们相信，每个学生都值得一份基于数据与人工智能的精准选校方案，而不是凭感觉和运气。</p>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card"><div class="stat-number">2021</div><div class="stat-label">成立年份</div></div>
+          <div class="stat-card"><div class="stat-number">50,000+</div><div class="stat-label">服务学员</div></div>
+          <div class="stat-card"><div class="stat-number">250+</div><div class="stat-label">覆盖院校</div></div>
+          <div class="stat-card"><div class="stat-number">92%</div><div class="stat-label">学员满意度</div></div>
+        </div>
+        <div class="section-title-row"><h2>我们的服务</h2></div>
+        <div class="feature-row">
+          <div class="feature-card">
+            <div class="feature-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"></path><line x1="9" y1="22" x2="15" y2="22"></line></svg></div>
+            <h3>AI 智能选校</h3>
+            <p>自研匹配引擎 + DeepSeek 大模型双引擎，覆盖 250+ 所院校，生成保底 / 匹配 / 冲刺三档方案。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+            <h3>1 对 1 申请咨询</h3>
+            <p>前招生官与资深顾问团队，提供选校定位、文书打磨、面试辅导全流程陪伴。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
+            <h3>托雅培训</h3>
+            <p>托福 / 雅思系统化课程与 1 对 1 提分方案，平均提分 1.5 分（雅思）/ 18 分（托福）。</p>
+          </div>
+        </div>
+        <div class="section-title-row"><h2>发展历程</h2></div>
+        <div class="card" style="padding:1.1rem 1.2rem;">
+          <div class="timeline">
+            <div class="timeline-item"><div class="timeline-year">2021</div><div class="timeline-text">AdmitPath 在上海成立，上线第一版选校匹配工具。</div></div>
+            <div class="timeline-item"><div class="timeline-year">2022</div><div class="timeline-text">院校数据库扩展至 100 所，推出 1 对 1 申请咨询服务。</div></div>
+            <div class="timeline-item"><div class="timeline-year">2024</div><div class="timeline-text">服务学员突破 30,000 人，上线托福雅思培训业务。</div></div>
+            <div class="timeline-item"><div class="timeline-year">2026</div><div class="timeline-text">接入 DeepSeek AI 大模型，院校库升级至 250+ 所，进入 AI 选校 2.0 时代。</div></div>
+          </div>
+        </div>
+        <div class="section-title-row"><h2>联系我们</h2></div>
+        <div class="card" style="padding:1.1rem 1.2rem;">
+          <div class="contact-grid">
+            <div class="contact-card"><div class="ic">✉️</div><div class="t">商务合作</div><div class="d">bd@admitpath.app</div></div>
+            <div class="contact-card"><div class="ic">📍</div><div class="t">公司地址</div><div class="d">上海市杨浦区大学路 88 号</div></div>
+            <div class="contact-card"><div class="ic">💬</div><div class="t">在线咨询</div><div class="d">工作日 9:00-18:00</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 留学咨询 -->
+      <section class="page" id="page-study">
+        <div class="assess-head">
+          <div><h2>留学咨询</h2><p>选校定位、申请规划、文书辅导，一站式留学申请服务</p></div>
+          <button class="btn btn-accent" onclick="App.go('assess')">免费 AI 选校评估</button>
+        </div>
+        <div class="feature-row" style="margin-top:0;">
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>选校定位</h3>
+            <p>基于你的背景与历年录取数据，AI + 顾问双重把关，定制三档选校名单。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3>文书辅导</h3>
+            <p>PS / CV / 推荐信全流程打磨，外籍导师润色，突出你的独特竞争力。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🗓️</div>
+            <h3>申请规划</h3>
+            <p>从大一到大四的时间线规划：GPA、标化、科研、实习，每一步都有节奏。</p>
+          </div>
+        </div>
+        <div class="section-title-row"><h2>申请时间线参考</h2></div>
+        <div class="card" style="padding:1.1rem 1.2rem;">
+          <div class="timeline">
+            <div class="timeline-item"><div class="timeline-year">大一大二</div><div class="timeline-text">稳住 GPA，开始接触科研与社团，确定大致申请方向。</div></div>
+            <div class="timeline-item"><div class="timeline-year">大三上</div><div class="timeline-text">集中备考托福 / 雅思 / GRE，进入实验室或实习，积累核心经历。</div></div>
+            <div class="timeline-item"><div class="timeline-year">大三暑假</div><div class="timeline-text">高质量实习或暑研，确定选校名单，启动文书素材整理。</div></div>
+            <div class="timeline-item"><div class="timeline-year">大四上</div><div class="timeline-text">9-12 月完成文书定稿并投递，准备面试，跟进申请状态。</div></div>
+            <div class="timeline-item"><div class="timeline-year">大四下</div><div class="timeline-text">收获 offer，对比选择，办理签证与行前准备。</div></div>
+          </div>
+        </div>
+        <div class="section-title-row"><h2>热门留学目的地</h2></div>
+        <div class="card" style="padding:1.1rem 1.2rem;">
+          <div class="contact-grid">
+            <div class="contact-card"><div class="ic">🇺🇸</div><div class="t">美国</div><div class="d">CS / 商科 / 工程首选，奖学金机会多</div></div>
+            <div class="contact-card"><div class="ic">🇬🇧</div><div class="t">英国</div><div class="d">一年制硕士，性价比高，PSW 工签</div></div>
+            <div class="contact-card"><div class="ic">🇨🇦</div><div class="t">加拿大</div><div class="d">移民友好，带薪实习项目丰富</div></div>
+            <div class="contact-card"><div class="ic">🇦🇺</div><div class="t">澳大利亚</div><div class="d">入学门槛灵活，宜居环境</div></div>
+            <div class="contact-card"><div class="ic">🇸🇬</div><div class="t">新加坡 / 香港</div><div class="d">离家近，就业资源丰富</div></div>
+            <div class="contact-card"><div class="ic">🇪🇺</div><div class="t">欧洲</div><div class="d">低学费甚至免学费，英语授课项目多</div></div>
+          </div>
+        </div>
+        <div class="card" style="padding:1.1rem 1.2rem;margin-top:.8rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <div style="flex:1;min-width:220px;"><h3 style="margin-bottom:.2rem;">需要 1 对 1 顾问帮助？</h3><p style="font-size:.83rem;color:var(--text-secondary);">提交咨询意向，顾问将在 24 小时内联系你。</p></div>
+          <button class="btn btn-accent" onclick="App.openConsult('留学咨询')">预约免费咨询</button>
+        </div>
+      </section>
+
+      <!-- 托雅咨询 -->
+      <section class="page" id="page-ielts">
+        <div class="assess-head">
+          <div><h2>托福 / 雅思咨询</h2><p>考试选择、备考规划、提分策略，一次讲清楚</p></div>
+          <button class="btn btn-accent" onclick="App.openConsult('托雅咨询')">预约水平测试</button>
+        </div>
+        <div class="section-title-row" style="margin-top:0;"><h2>托福 vs 雅思，怎么选？</h2></div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <table class="compare-table">
+            <thead><tr><th>对比项</th><th>雅思 IELTS</th><th>托福 TOEFL</th></tr></thead>
+            <tbody>
+              <tr><td>适用地区</td><td>英联邦国家首选，美国同样认可</td><td>美国首选，全球广泛认可</td></tr>
+              <tr><td>考试形式</td><td>纸笔 / 机考，口语面对真人考官</td><td>全程机考，口语对电脑作答</td></tr>
+              <tr><td>分数体系</td><td>0-9 分，0.5 分为一档</td><td>0-120 分，四科各 30 分</td></tr>
+              <tr><td>典型要求</td><td>硕士申请通常 6.5-7.5</td><td>硕士申请通常 90-105</td></tr>
+              <tr><td>备考周期</td><td>基础 6 分 → 7 分约 2-3 个月</td><td>基础 80 → 100 约 3-4 个月</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="section-title-row"><h2>四科备考要点</h2></div>
+        <div class="feature-row" style="grid-template-columns:repeat(2,1fr);">
+          <div class="feature-card"><div class="feature-icon">🎧</div><h3>听力</h3><p>精听 + 听写是提分核心，每天坚持 30 分钟，优先掌握学术讲座场景词汇。</p></div>
+          <div class="feature-card"><div class="feature-icon">📖</div><h3>阅读</h3><p>先题后文定位关键词，限时训练三篇 54 分钟，长难句分析是突破口。</p></div>
+          <div class="feature-card"><div class="feature-icon">✍️</div><h3>写作</h3><p>搭建自己的论证框架与语料库，避免模板痕迹，重视逻辑衔接与句式多样。</p></div>
+          <div class="feature-card"><div class="feature-icon">🗣️</div><h3>口语</h3><p>录音复盘是最快提升方式，积累高频话题素材，训练流利度优先于复杂词汇。</p></div>
+        </div>
+        <div class="card" style="padding:1.1rem 1.2rem;margin-top:.8rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <div style="flex:1;min-width:220px;"><h3 style="margin-bottom:.2rem;">不知道自己的水平？</h3><p style="font-size:.83rem;color:var(--text-secondary);">预约免费水平测试，获取个性化提分方案与课程推荐。</p></div>
+          <button class="btn btn-accent" onclick="App.openConsult('托雅水平测试')">预约免费测试</button>
+        </div>
+      </section>
+
+      <!-- 付费课程 -->
+      <section class="page" id="page-courses">
+        <div class="assess-head">
+          <div><h2>付费课程</h2><p>选校、文书、语言、面试，按需选择，明码标价</p></div>
+        </div>
+        <div class="course-grid">
+          <div class="course-card">
+            <div class="course-tag">最受欢迎</div>
+            <h3>AI 选校报告 · 深度版</h3>
+            <div class="course-price">¥199<span>/ 次</span></div>
+            <ul>
+              <li>DeepSeek 大模型 800 字深度分析</li>
+              <li>250+ 院校全库匹配，不限评估次数</li>
+              <li>三档选校名单 + 逐校申请建议</li>
+              <li>报告永久保存，随时回看</li>
+            </ul>
+            <button class="btn btn-accent btn-block" onclick="App.enroll('AI 选校报告 · 深度版')">立即报名</button>
+          </div>
+          <div class="course-card">
+            <div class="course-tag" style="background:var(--match-light);color:var(--match);">1 对 1</div>
+            <h3>文书精修套餐</h3>
+            <div class="course-price">¥1,999<span>/ 套</span></div>
+            <ul>
+              <li>PS + CV + 3 封推荐信全程打磨</li>
+              <li>中外双导师 3 轮修改</li>
+              <li>外籍导师母语级润色</li>
+              <li>7 天交付，不限次沟通</li>
+            </ul>
+            <button class="btn btn-accent btn-block" onclick="App.enroll('文书精修套餐')">立即报名</button>
+          </div>
+          <div class="course-card">
+            <div class="course-tag" style="background:var(--safe-light);color:var(--safe);">提分保障</div>
+            <h3>雅思 / 托福 1 对 1 提分班</h3>
+            <div class="course-price">¥399<span>/ 课时</span></div>
+            <ul>
+              <li>入学水平测试 + 个性化提分方案</li>
+              <li>听说读写分科名师授课</li>
+              <li>每 10 课时一次模考与复盘</li>
+              <li>未达目标分数免费重读 20%</li>
+            </ul>
+            <button class="btn btn-accent btn-block" onclick="App.enroll('雅思/托福 1 对 1 提分班')">立即报名</button>
+          </div>
+          <div class="course-card">
+            <div class="course-tag" style="background:var(--reach-light);color:var(--reach);">全流程</div>
+            <h3>申请全程护航计划</h3>
+            <div class="course-price">¥29,999<span>/ 全程</span></div>
+            <ul>
+              <li>选校 + 文书 + 网申 + 面试一站式</li>
+              <li>前招生官顾问 1 对 1 全程陪伴</li>
+              <li>8 所院校申请，冲刺 Top 30</li>
+              <li>未获任何录取退还 50% 费用</li>
+            </ul>
+            <button class="btn btn-accent btn-block" onclick="App.enroll('申请全程护航计划')">立即报名</button>
+          </div>
+        </div>
+        <div class="card" style="padding:.9rem 1.1rem;margin-top:.8rem;font-size:.78rem;color:var(--text-tertiary);line-height:1.7;">
+          说明：以上价格为参考定价，具体以咨询顾问报价为准；所有课程支持分期付款，开课前可全额退款。
+        </div>
+      </section>
+
+      <!-- 设置 -->
+      <section class="page" id="page-settings">
+        <div class="assess-head">
+          <div>
+            <h2 data-i18n="settings.title">设置</h2>
+            <p data-i18n="settings.subtitle">个性化你的使用体验，管理账号与 AI 接口</p>
+          </div>
+        </div>
+        <div class="settings-layout">
+          <div class="settings-menu" id="settingsMenu"></div>
+          <div id="settingsContent"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 右侧：大学新闻资讯栏 -->
+    <aside class="news-rail">
+      <div class="news-panel">
+        <div class="news-head">
+          <h3><span class="live-dot"></span><span data-i18n="news.title">院校资讯</span></h3>
+          <div class="spacer"></div>
+          <button class="icon-btn" style="width:28px;height:28px;" onclick="News.refresh(true)" title="刷新" id="newsRefreshBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          </button>
+        </div>
+        <div class="news-status" id="newsStatus"><span data-i18n="news.loading">正在联网获取最新资讯…</span></div>
+        <div class="news-list" id="newsList"></div>
+        <div class="news-foot" data-i18n="news.foot">资讯来自互联网公开新闻源，每 10 分钟自动更新</div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- 找回密码 -->
+<div class="modal-mask" id="resetModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 data-i18n="reset.title">找回密码</h3>
+      <button class="modal-close" onclick="App.closeModal('resetModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    </div>
+    <div id="resetStep1">
+      <p style="font-size:.83rem;color:var(--text-secondary);margin-bottom:.9rem;" data-i18n="reset.desc">输入注册时使用的邮箱，系统将发送 6 位验证码用于重置密码。</p>
+      <div class="form-group">
+        <label class="form-label" data-i18n="reset.email">注册邮箱</label>
+        <input class="form-input" type="email" id="resetEmail" placeholder="name@example.com">
+      </div>
+      <button class="btn btn-accent btn-block" onclick="Auth.sendResetCode()" data-i18n="reset.send">发送验证码</button>
+    </div>
+    <div id="resetStep2" style="display:none;">
+      <div class="auth-note" style="margin:0 0 .9rem;" id="resetCodeHint"></div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="reset.code">验证码</label>
+        <input class="form-input" id="resetCode" placeholder="6 位数字" maxlength="6">
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="reset.newPwd">新密码</label>
+        <input class="form-input" type="password" id="resetNewPwd" data-i18n-ph="auth.setPasswordPh" placeholder="至少 8 位，含字母和数字">
+      </div>
+      <button class="btn btn-accent btn-block" onclick="Auth.confirmReset()" data-i18n="reset.confirm">重置密码</button>
+    </div>
+  </div>
+</div>
+
+<!-- 评估记录 -->
+<div class="modal-mask" id="historyModal">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h3 data-i18n="history.title">我的评估记录</h3>
+      <button class="modal-close" onclick="App.closeModal('historyModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<!-- 用户协议 -->
+<div class="modal-mask" id="termsModal">
+  <div class="modal wide">
+    <div class="modal-head"><h3 data-i18n="terms.title">用户协议</h3>
+      <button class="modal-close" onclick="App.closeModal('termsModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    </div>
+    <div style="font-size:.83rem;color:var(--text-secondary);line-height:1.8;">
+      <p><strong>1. 服务说明</strong><br>AdmitPath 为用户提供基于公开数据的选校匹配参考与 AI 分析建议，结果仅供参考，不构成任何录取保证。</p>
+      <p style="margin-top:.6rem;"><strong>2. 账号责任</strong><br>用户需妥善保管账号与密码，因用户主动泄露导致的风险由用户自行承担。</p>
+      <p style="margin-top:.6rem;"><strong>3. 数据与隐私</strong><br>本系统数据存储于用户本地浏览器，不上传至服务器；接入第三方 AI 接口时，相关数据将发送至你所配置的服务商。</p>
+      <p style="margin-top:.6rem;"><strong>4. 免责条款</strong><br>院校录取数据可能存在滞后，请以各大学官网最新信息为准。</p>
+    </div>
+  </div>
+</div>
+
+<!-- 咨询预约 / 课程报名 -->
+<div class="modal-mask" id="consultModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="consultTitle">预约咨询</h3>
+      <button class="modal-close" onclick="App.closeModal('consultModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    </div>
+    <p style="font-size:.83rem;color:var(--text-secondary);margin-bottom:.9rem;" id="consultDesc">留下你的联系方式，顾问将在 24 小时内与你联系。</p>
+    <div class="form-group">
+      <label class="form-label">称呼<span class="req">*</span></label>
+      <input class="form-input" id="consultName" placeholder="怎么称呼你？">
+    </div>
+    <div class="form-group">
+      <label class="form-label">联系方式（手机 / 微信 / 邮箱）<span class="req">*</span></label>
+      <input class="form-input" id="consultContact" placeholder="方便顾问联系你的方式">
+    </div>
+    <div class="form-group">
+      <label class="form-label">想咨询的问题（选填）</label>
+      <textarea class="form-input" id="consultMsg" rows="3" placeholder="简单描述你的需求，例如：想申请美国 CS 硕士…"></textarea>
+    </div>
+    <button class="btn btn-accent btn-block" onclick="App.submitConsult()">提交预约</button>
+  </div>
+</div>
+
+<!-- 隐私政策 -->
+<div class="modal-mask" id="privacyModal">
+  <div class="modal wide">
+    <div class="modal-head"><h3 data-i18n="privacy.title">隐私政策</h3>
+      <button class="modal-close" onclick="App.closeModal('privacyModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    </div>
+    <div style="font-size:.83rem;color:var(--text-secondary);line-height:1.8;">
+      <p><strong>我们收集什么</strong><br>仅收集你主动填写的账号信息（用户名、邮箱、加密后的密码）与评估表单数据。</p>
+      <p style="margin-top:.6rem;"><strong>数据存在哪里</strong><br>所有数据保存在你自己的浏览器本地存储中，密码经 SHA-256 加盐哈希处理，我们无法查看你的明文密码。</p>
+      <p style="margin-top:.6rem;"><strong>第三方服务</strong><br>院校资讯来自公开 RSS 新闻源；如你在设置中启用 AI 接口，表单数据将发送至你自行配置的服务商，请阅读其隐私政策。</p>
+      <p style="margin-top:.6rem;"><strong>你的权利</strong><br>你可随时在「设置 → 账号」中修改密码或注销账号，注销后本地数据立即清除。</p>
+    </div>
+  </div>
+</div>
+<script>
+/* ================= 多语言 ================= */
+const I18N = {
+  zh: {
+    'auth.slogan':'AI 驱动的留学选校智能匹配系统','auth.loginTab':'登录','auth.registerTab':'注册',
+    'auth.account':'账号 / 邮箱','auth.accountPh':'请输入用户名或邮箱','auth.password':'密码','auth.passwordPh':'请输入密码',
+    'auth.loginBtn':'登 录','auth.forgot':'忘记密码？','auth.noAccount':'没有账号？去注册',
+    'auth.username':'用户名','auth.usernamePh':'2-20 个字符，用于登录和展示','auth.email':'邮箱','auth.emailPh':'用于登录和找回密码',
+    'auth.setPassword':'设置密码','auth.setPasswordPh':'至少 8 位，含字母和数字','auth.confirmPassword':'确认密码','auth.confirmPasswordPh':'再次输入密码',
+    'auth.agree':'我已阅读并同意','auth.terms':'《用户协议》','auth.and':'和','auth.privacy':'《隐私政策》',
+    'auth.registerBtn':'注 册','auth.hasAccount':'已有账号？去登录',
+    'auth.note':'注册账号并登录后，才能使用 AI 选校评估、院校资讯等全部功能。你的数据仅保存在本机浏览器中。',
+    'nav.home':'首页','nav.about':'公司简介','nav.study':'留学咨询','nav.ielts':'托雅咨询','nav.courses':'付费课程','nav.assess':'智能评估','nav.results':'匹配结果','nav.settings':'设置',
+    'menu.profile':'账号与个人资料','menu.history':'我的评估记录','menu.settings':'系统设置','menu.logout':'退出登录',
+    'home.badge':'AI 驱动的选校匹配引擎','home.title':'找到属于你的理想大学',
+    'home.subtitle':'基于你的学术背景，AI 大脑智能分析全球 250+ 所顶尖院校，精准预测录取概率，让留学申请不再盲目。',
+    'home.start':'开始智能评估','home.openSettings':'系统设置',
+    'home.stat1':'顶尖院校','home.stat2':'匹配精准度','home.stat3':'国家与地区','home.stat4':'智能分析引擎',
+    'home.features':'核心功能','home.f1t':'AI 智能匹配','home.f1d':'接入 AI 大脑深度分析你的背景，按保底 / 匹配 / 冲刺三档生成选校方案。',
+    'home.f2t':'院校数据库','home.f2d':'覆盖全球 49 个国家与地区 250+ 所名校的录取门槛、学费、项目与截止日期。',
+    'home.f3t':'实时院校资讯','home.f3d':'右侧资讯栏联网自动更新全球大学新闻与留学动态，打开链接直达原文。',
+    'assess.title':'智能选校评估','assess.subtitle':'填写以下信息，AI 大脑将为你分析并生成专属选校方案（带 * 为必填）',
+    'assess.reset':'清空重填','assess.reset2':'重置','assess.submit':'开始 AI 分析',
+    'assess.hint':'提交后 AI 将分析你的背景并比对 250+ 所院校录取数据',
+    'loading.title':'AI 大脑正在思考分析…',
+    'results.title':'AI 匹配结果','results.reassess':'重新评估','results.aiReport':'智能分析报告',
+    'results.filter':'筛选','results.clearFilter':'清除全部筛选',
+    'results.sortProb':'按匹配概率','results.sortRank':'按 QS 排名','results.sortTuition':'按学费从低到高',
+    'settings.title':'设置','settings.subtitle':'个性化你的使用体验，管理账号与 AI 接口',
+    'news.title':'院校资讯','news.loading':'正在联网获取最新资讯…',
+    'news.foot':'资讯来自互联网公开新闻源，每 10 分钟自动更新',
+    'reset.title':'找回密码','reset.desc':'输入注册时使用的邮箱，系统将发送 6 位验证码用于重置密码。',
+    'reset.email':'注册邮箱','reset.send':'发送验证码','reset.code':'验证码','reset.newPwd':'新密码','reset.confirm':'重置密码',
+    'history.title':'我的评估记录','terms.title':'用户协议','privacy.title':'隐私政策',
+  },
+  en: {
+    'auth.slogan':'AI-powered university matching system','auth.loginTab':'Sign in','auth.registerTab':'Sign up',
+    'auth.account':'Account / Email','auth.accountPh':'Username or email','auth.password':'Password','auth.passwordPh':'Enter your password',
+    'auth.loginBtn':'Sign in','auth.forgot':'Forgot password?','auth.noAccount':"No account? Sign up",
+    'auth.username':'Username','auth.usernamePh':'2-20 characters','auth.email':'Email','auth.emailPh':'For sign-in and recovery',
+    'auth.setPassword':'Password','auth.setPasswordPh':'Min 8 chars, letters & digits','auth.confirmPassword':'Confirm','auth.confirmPasswordPh':'Repeat password',
+    'auth.agree':'I agree to the','auth.terms':'Terms','auth.and':'and','auth.privacy':'Privacy Policy',
+    'auth.registerBtn':'Sign up','auth.hasAccount':'Have an account? Sign in',
+    'auth.note':'You must register and sign in to use AI matching, news and all features. Data stays in your browser only.',
+    'nav.home':'Home','nav.about':'About Us','nav.study':'Study Abroad','nav.ielts':'TOEFL & IELTS','nav.courses':'Courses','nav.assess':'Assessment','nav.results':'Results','nav.settings':'Settings',
+    'menu.profile':'Account & Profile','menu.history':'My Evaluations','menu.settings':'Settings','menu.logout':'Sign out',
+    'home.badge':'AI-driven matching engine','home.title':'Find your ideal university',
+    'home.subtitle':'Our AI engine analyzes 250+ top universities worldwide against your academic profile and predicts admission chances.',
+    'home.start':'Start Assessment','home.openSettings':'Settings',
+    'home.stat1':'Top universities','home.stat2':'Match accuracy','home.stat3':'Countries & regions','home.stat4':'AI analysis engine',
+    'home.features':'Key Features','home.f1t':'AI Matching','home.f1d':'AI analyzes your profile and builds a safe / match / reach school list.',
+    'home.f2t':'University Database','home.f2d':'Thresholds, tuition, programs and deadlines of 250+ top schools across 49 regions.',
+    'home.f3t':'Live News','home.f3d':'The news rail auto-updates global university headlines from the internet.',
+    'assess.title':'Smart Assessment','assess.subtitle':'Fill in your profile — the AI will build your school list (* required)',
+    'assess.reset':'Clear','assess.reset2':'Reset','assess.submit':'Run AI Analysis',
+    'assess.hint':'The AI will compare your profile against admission data of 250+ universities',
+    'loading.title':'AI is analyzing your profile…',
+    'results.title':'AI Match Results','results.reassess':'Re-assess','results.aiReport':'AI Analysis Report',
+    'results.filter':'Filters','results.clearFilter':'Clear all filters',
+    'results.sortProb':'By probability','results.sortRank':'By QS rank','results.sortTuition':'By tuition (low→high)',
+    'settings.title':'Settings','settings.subtitle':'Personalize your experience, manage account & AI API',
+    'news.title':'University News','news.loading':'Fetching latest news…',
+    'news.foot':'News from public internet sources, auto-refresh every 10 min',
+    'reset.title':'Reset Password','reset.desc':'Enter your registration email to receive a 6-digit verification code.',
+    'reset.email':'Email','reset.send':'Send code','reset.code':'Code','reset.newPwd':'New password','reset.confirm':'Reset password',
+    'history.title':'My Evaluations','terms.title':'Terms of Service','privacy.title':'Privacy Policy',
+  }
+};
+function t(key){ const lang=(typeof Settings!=='undefined'&&Settings.data.lang)||'zh'; return (I18N[lang]&&I18N[lang][key])||I18N.zh[key]||key; }
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder=t(el.dataset.i18nPh); });
+  document.documentElement.lang = (Settings.data.lang==='en')?'en':'zh-CN';
+}
+
+/* ================= 工具 ================= */
+const $=id=>document.getElementById(id);
+function toast(msg,type=''){
+  if(msg===undefined||msg===null||String(msg).trim()==='') return; // 空消息不渲染，避免空白提示框
+  const wrap=$('toastWrap');
+  const el=document.createElement('div');
+  el.className='toast '+type; el.textContent=msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),320); },2600);
+}
+async function sha256(text){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function timeAgo(dateStr){
+  const d=new Date(dateStr); const diff=(Date.now()-d.getTime())/1000;
+  if(isNaN(diff)) return '';
+  const zh=(Settings.data.lang||'zh')==='zh';
+  if(diff<3600) return zh?`${Math.max(1,Math.floor(diff/60))} 分钟前`:`${Math.max(1,Math.floor(diff/60))}m ago`;
+  if(diff<86400) return zh?`${Math.floor(diff/3600)} 小时前`:`${Math.floor(diff/3600)}h ago`;
+  return zh?`${Math.floor(diff/86400)} 天前`:`${Math.floor(diff/86400)}d ago`;
+}
+
+/* ================= 账号系统 ================= */
+const Auth={
+  users(){ try{return JSON.parse(localStorage.getItem('admitpath-users')||'[]');}catch(e){return[];} },
+  saveUsers(u){ localStorage.setItem('admitpath-users',JSON.stringify(u)); },
+  session(){ try{return JSON.parse(localStorage.getItem('admitpath-session')||'null');}catch(e){return null;} },
+  currentUser(){
+    const s=this.session(); if(!s) return null;
+    if(s.expires&&Date.now()>s.expires){ this.logout(true); return null; }
+    return this.users().find(u=>u.username===s.username)||null;
+  },
+  switchTab(tab){
+    document.querySelectorAll('.auth-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+    $('pane-login').classList.toggle('active',tab==='login');
+    $('pane-register').classList.toggle('active',tab==='register');
+  },
+  checkStrength(v){
+    let s=0; if(v.length>=8)s++; if(/[a-zA-Z]/.test(v)&&/\d/.test(v))s++; if(v.length>=12||/[^a-zA-Z0-9]/.test(v))s++;
+    const bar=$('pwdStrengthBar'); const colors=['var(--reach)','var(--match)','var(--safe)'];
+    bar.style.width=(s/3*100)+'%'; bar.style.background=s?colors[s-1]:'transparent';
+  },
+  validPwd(p){ return p.length>=8&&/[a-zA-Z]/.test(p)&&/\d/.test(p); },
+  async register(){
+    const username=$('regUsername').value.trim(), email=$('regEmail').value.trim().toLowerCase();
+    const pwd=$('regPassword').value, pwd2=$('regPassword2').value;
+    const zh=Settings.data.lang!=='en';
+    if(username.length<2) return toast(zh?'用户名至少 2 个字符':'Username too short (min 2 chars)','error');
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast(zh?'邮箱格式不正确':'Invalid email format','error');
+    if(!this.validPwd(pwd)) return toast(zh?'密码至少 8 位，且需包含字母和数字':'Password needs 8+ chars with letters & digits','error');
+    if(pwd!==pwd2) return toast(zh?'两次输入的密码不一致':'Passwords do not match','error');
+    if(!$('regAgree').checked) return toast(zh?'请先阅读并同意用户协议':'Please agree to the Terms first','error');
+    const users=this.users();
+    if(users.some(u=>u.username===username)) return toast(zh?'该用户名已被注册':'Username already taken','error');
+    if(users.some(u=>u.email===email)) return toast(zh?'该邮箱已被注册':'Email already registered','error');
+    const salt=Math.random().toString(36).slice(2)+Date.now().toString(36);
+    const hash=await sha256(salt+pwd);
+    users.push({username,email,salt,hash,createdAt:Date.now()});
+    this.saveUsers(users);
+    this.startSession(username);
+    toast(zh?'注册成功，欢迎加入！':'Registration successful, welcome!','success');
+    App.enterApp();
+  },
+  async login(){
+    const acc=$('loginAccount').value.trim(), pwd=$('loginPassword').value;
+    const zh=Settings.data.lang!=='en';
+    if(!acc||!pwd) return toast(zh?'请输入账号和密码':'Please enter account and password','error');
+    const user=this.users().find(u=>u.username===acc||u.email===acc.toLowerCase());
+    if(!user) return toast(zh?'账号不存在，请先注册':'Account not found, please sign up','error');
+    const hash=await sha256(user.salt+pwd);
+    if(hash!==user.hash) return toast(zh?'密码错误，请重试':'Incorrect password','error');
+    this.startSession(user.username);
+    toast((zh?'欢迎回来，':'Welcome back, ')+user.username,'success');
+    App.enterApp();
+  },
+  startSession(username){
+    localStorage.setItem('admitpath-session',JSON.stringify({username,expires:Date.now()+7*864e5}));
+  },
+  logout(silent){
+    localStorage.removeItem('admitpath-session');
+    App.closeAccountMenu();
+    $('appShell').classList.remove('active');
+    $('authView').classList.add('active');
+    this.switchTab('login');
+    if(!silent) toast(Settings.data.lang==='en'?'Signed out':'已退出登录');
+  },
+  openReset(){
+    $('resetStep1').style.display='block'; $('resetStep2').style.display='none';
+    $('resetEmail').value=''; $('resetCode').value=''; $('resetNewPwd').value='';
+    App.openModal('resetModal');
+  },
+  sendResetCode(){
+    const email=$('resetEmail').value.trim().toLowerCase();
+    const user=this.users().find(u=>u.email===email);
+    const zh=Settings.data.lang!=='en';
+    if(!user) return toast(zh?'该邮箱未注册':'No account with this email','error');
+    const code=String(Math.floor(100000+Math.random()*900000));
+    this._reset={email,code,expires:Date.now()+10*60*1000};
+    $('resetCodeHint').innerHTML=zh
+      ?`验证码已发送至 <b>${email}</b>（演示环境直接显示）：<b style="font-size:1rem;">${code}</b>，10 分钟内有效。`
+      :`Verification code sent to <b>${email}</b> (demo inbox): <b style="font-size:1rem;">${code}</b> — valid for 10 minutes.`;
+    $('resetStep1').style.display='none'; $('resetStep2').style.display='block';
+  },
+  async confirmReset(){
+    const r=this._reset; const zh=Settings.data.lang!=='en';
+    if(!r||Date.now()>r.expires) return toast(zh?'验证码已过期，请重新发送':'Code expired, resend please','error');
+    if($('resetCode').value.trim()!==r.code) return toast(zh?'验证码不正确':'Wrong verification code','error');
+    const pwd=$('resetNewPwd').value;
+    if(!this.validPwd(pwd)) return toast(zh?'密码至少 8 位，且需包含字母和数字':'Password needs 8+ chars with letters & digits','error');
+    const users=this.users(); const user=users.find(u=>u.email===r.email);
+    user.salt=Math.random().toString(36).slice(2)+Date.now().toString(36);
+    user.hash=await sha256(user.salt+pwd);
+    this.saveUsers(users); this._reset=null;
+    App.closeModal('resetModal');
+    toast(zh?'密码已重置，请使用新密码登录':'Password reset. Please sign in.','success');
+    this.switchTab('login');
+  },
+  async changePassword(oldPwd,newPwd){
+    const user=this.currentUser(); if(!user) return false;
+    if(await sha256(user.salt+oldPwd)!==user.hash) return 'wrong';
+    if(!this.validPwd(newPwd)) return 'weak';
+    const users=this.users(); const u=users.find(x=>x.username===user.username);
+    u.salt=Math.random().toString(36).slice(2)+Date.now().toString(36);
+    u.hash=await sha256(u.salt+newPwd);
+    this.saveUsers(users); return true;
+  },
+  deleteAccount(){
+    const user=this.currentUser(); if(!user) return;
+    this.saveUsers(this.users().filter(u=>u.username!==user.username));
+    localStorage.removeItem('admitpath-history-'+user.username);
+    this.logout(true);
+    toast(Settings.data.lang==='en'?'Account deleted':'账号已注销，本地数据已清除');
+  }
+};
+</script>
+<script>
+/* ================= 设置中心 ================= */
+const Settings={
+  data:{ lang:'zh', theme:'system', font:'sans', fontSize:'standard', newsAuto:true, notifyBrowser:false, aiEnabled:false, aiEndpoint:'https://api.deepseek.com/chat/completions', aiKey:'', aiModel:'deepseek-chat', aiStream:true },
+  tab:'general',
+  load(){ try{ Object.assign(this.data,JSON.parse(localStorage.getItem('admitpath-settings')||'{}')); }catch(e){} },
+  save(){ localStorage.setItem('admitpath-settings',JSON.stringify(this.data)); },
+  apply(){
+    const dark=this.data.theme==='dark'||(this.data.theme==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+    $('themeIcon').innerHTML=dark
+      ?'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'
+      :'<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+    document.body.classList.toggle('font-serif',this.data.font==='serif');
+    document.body.classList.toggle('font-rounded',this.data.font==='rounded');
+    document.documentElement.style.setProperty('--base-font-size',{small:'13.5px',standard:'15px',large:'16.5px'}[this.data.fontSize]||'15px');
+    applyI18n();
+  },
+  toggleTheme(){
+    const dark=document.documentElement.getAttribute('data-theme')==='dark';
+    this.data.theme=dark?'light':'dark'; this.save(); this.apply();
+    if(App.page==='settings') this.render();
+  },
+  set(key,val){ this.data[key]=val; this.save(); this.apply(); },
+  tabs(){
+    const zh=this.data.lang==='zh';
+    return [
+      {id:'general', icon:'⚙️', label:zh?'通用':'General'},
+      {id:'appearance', icon:'🎨', label:zh?'外观与字体':'Appearance'},
+      {id:'ai', icon:'🧠', label:zh?'AI 接口':'AI Engine'},
+      {id:'account', icon:'👤', label:zh?'账号':'Account'},
+      {id:'notify', icon:'🔔', label:zh?'通知':'Notifications'},
+      {id:'help', icon:'❓', label:zh?'帮助中心':'Help'},
+      {id:'service', icon:'💬', label:zh?'联系客服':'Support'},
+      {id:'about', icon:'ℹ️', label:zh?'关于':'About'},
+    ];
+  },
+  render(){
+    const zh=this.data.lang==='zh';
+    $('settingsMenu').innerHTML=this.tabs().map(tb=>
+      `<button class="settings-menu-item ${this.tab===tb.id?'active':''}" onclick="Settings.show('${tb.id}')"><span>${tb.icon}</span><span>${tb.label}</span></button>`
+    ).join('');
+    const c=$('settingsContent');
+    const d=this.data;
+    const seg=(key,opts)=>`<div class="seg-control">${opts.map(o=>`<button class="seg-btn ${d[key]===o.v?'active':''}" onclick="Settings.set('${key}','${o.v}');Settings.render()">${o.l}</button>`).join('')}</div>`;
+    const sw=(key,fn)=>`<label class="switch"><input type="checkbox" ${d[key]?'checked':''} onchange="${fn}"><span class="track"></span></label>`;
+    let html='';
+    if(this.tab==='general'){
+      html=`<div class="settings-card"><h3>${zh?'界面语言':'Interface Language'}</h3><div class="desc">${zh?'选择系统界面显示语言':'Choose the display language'}</div>
+        <div class="setting-row"><div class="info"><div class="t">${zh?'语言 / Language':'Language'}</div><div class="d">${zh?'切换后界面文本立即更新':'UI text updates immediately'}</div></div>
+        <div class="control">${seg('lang',[{v:'zh',l:'简体中文'},{v:'en',l:'English'}])}</div></div></div>
+      <div class="settings-card"><h3>${zh?'资讯偏好':'News Preferences'}</h3><div class="desc">${zh?'管理右侧院校资讯栏行为':'Control the news rail behavior'}</div>
+        <div class="setting-row"><div class="info"><div class="t">${zh?'自动更新资讯':'Auto-refresh news'}</div><div class="d">${zh?'每 10 分钟联网拉取最新院校新闻':'Fetch latest university news every 10 min'}</div></div>
+        <div class="control">${sw('newsAuto',"Settings.set('newsAuto',this.checked);News.setupTimer()")}</div></div></div>`;
+    }else if(this.tab==='appearance'){
+      html=`<div class="settings-card"><h3>${zh?'主题外观':'Theme'}</h3><div class="desc">${zh?'选择浅色、深色或跟随系统':'Light, dark, or follow system'}</div>
+        <div class="setting-row"><div class="info"><div class="t">${zh?'主题模式':'Theme mode'}</div></div>
+        <div class="control">${seg('theme',[{v:'light',l:zh?'浅色':'Light'},{v:'dark',l:zh?'深色':'Dark'},{v:'system',l:zh?'跟随系统':'System'}])}</div></div></div>
+      <div class="settings-card"><h3>${zh?'字体':'Font'}</h3><div class="desc">${zh?'调整界面字体风格与字号':'Font family and size'}</div>
+        <div class="setting-row"><div class="info"><div class="t">${zh?'字体风格':'Font family'}</div><div class="d">${zh?'实时预览生效':'Applies instantly'}</div></div>
+        <div class="control">${seg('font',[{v:'sans',l:zh?'黑体（默认）':'Sans'},{v:'serif',l:zh?'宋体/衬线':'Serif'},{v:'rounded',l:zh?'圆体':'Rounded'}])}</div></div>
+        <div class="setting-row"><div class="info"><div class="t">${zh?'字号大小':'Font size'}</div></div>
+        <div class="control">${seg('fontSize',[{v:'small',l:zh?'小':'S'},{v:'standard',l:zh?'标准':'M'},{v:'large',l:zh?'大':'L'}])}</div></div></div>`;
+    }else if(this.tab==='ai'){
+      html=`<div class="settings-card"><h3>${zh?'AI 大脑接口':'AI Engine API'}</h3><div class="desc">${zh?'配置后，选校匹配将接入真实 AI 大模型深度分析；未配置时使用内置智能引擎':'With an API configured, matching is analyzed by a real LLM; otherwise the built-in engine is used'}</div>
+        <div class="setting-row"><div class="info"><div class="t">${zh?'启用 AI 大模型分析':'Enable LLM analysis'}</div><div class="d">${zh?'提交评估时调用下方配置的接口':'Calls the endpoint below on submit'}</div></div>
+        <div class="control">${sw('aiEnabled',"Settings.set('aiEnabled',this.checked)")}</div></div>
+        <div class="setting-row"><div class="info"><div class="t">${zh?'流式输出':'Streaming'}</div><div class="d">${zh?'AI 报告逐字实时生成展示（SSE）':'Stream the AI report token by token (SSE)'}</div></div>
+        <div class="control">${sw('aiStream',"Settings.set('aiStream',this.checked)")}</div></div>
+        <div style="margin:.9rem 0;padding:.7rem .9rem;background:var(--accent-light);border-radius:var(--radius-sm);display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;"><div style="font-size:.85rem;font-weight:600;">DeepSeek</div>
+          <div style="font-size:.74rem;color:var(--text-tertiary);">${zh?'一键填入 DeepSeek 官方接口地址与模型，只需再填 API Key':'Fill in the official DeepSeek endpoint & model — just add your API Key'}</div></div>
+          <button class="btn btn-accent btn-sm" onclick="Settings.fillDeepSeek()">${zh?'一键填入 DeepSeek 默认配置':'Use DeepSeek defaults'}</button>
+        </div>
+        <div class="form-group" style="margin-top:.8rem;"><label class="form-label">API ${zh?'地址':'Endpoint'}</label>
+          <input class="form-input" id="aiEndpointInput" value="${d.aiEndpoint}" placeholder="https://api.deepseek.com/chat/completions">
+          <div class="form-hint">${zh?'兼容 OpenAI Chat Completions 格式的接口均可（如 DeepSeek、OpenAI、Kimi 等）':'Any OpenAI-compatible Chat Completions endpoint (DeepSeek, OpenAI, Kimi…)'}</div></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">API Key</label>
+            <input class="form-input" type="password" id="aiKeyInput" value="${d.aiKey}" placeholder="sk-..."></div>
+          <div class="form-group"><label class="form-label">${zh?'模型':'Model'}</label>
+            <input class="form-input" id="aiModelInput" value="${d.aiModel}" placeholder="deepseek-chat"></div>
+        </div>
+        <div style="display:flex;gap:.6rem;">
+          <button class="btn btn-accent" onclick="Settings.saveAi()">${zh?'保存配置':'Save'}</button>
+          <button class="btn btn-secondary" onclick="Settings.testAi()" id="aiTestBtn">${zh?'测试连接':'Test connection'}</button>
+        </div>
+        <div class="form-hint" style="margin-top:.6rem;">${zh?'⚠️ API Key 仅保存在你的浏览器本地，请求直接从浏览器发往你配置的服务商。':'⚠️ The key is stored only in your browser; requests go directly from your browser to your provider.'}</div></div>`;
+    }else if(this.tab==='account'){
+      const u=Auth.currentUser();
+      const hist=App.getHistory();
+      html=`<div class="settings-card">
+        <div class="profile-head"><div class="profile-avatar">${(u?u.username[0]:'U').toUpperCase()}</div>
+        <div><div class="name">${u?u.username:'—'}</div><div class="meta">${u?u.email:''} · ${zh?'注册于':'Joined'} ${u?new Date(u.createdAt).toLocaleDateString():''} · ${hist.length} ${zh?'次评估':'evaluations'}</div></div></div>
+        <div class="setting-row"><div class="info"><div class="t">${zh?'修改密码':'Change password'}</div><div class="d">${zh?'定期更换密码更安全':'Change regularly for safety'}</div></div>
+        <div class="control"><button class="btn btn-secondary btn-sm" onclick="Settings.showChangePwd()">${zh?'修改':'Change'}</button></div></div>
+        <div id="changePwdBox" style="display:none;padding:.6rem 0;">
+          <div class="form-row-3">
+            <input class="form-input" type="password" id="oldPwd" placeholder="${zh?'当前密码':'Current password'}">
+            <input class="form-input" type="password" id="newPwd" placeholder="${zh?'新密码':'New password'}">
+            <button class="btn btn-accent" onclick="Settings.doChangePwd()">${zh?'确认修改':'Confirm'}</button>
+          </div></div>
+        <div class="setting-row"><div class="info"><div class="t">${zh?'我的评估记录':'My evaluations'}</div><div class="d">${zh?'查看历史评估结果':'View past results'}</div></div>
+        <div class="control"><button class="btn btn-secondary btn-sm" onclick="App.openHistory()">${zh?'查看':'View'}</button></div></div>
+        <div class="setting-row"><div class="info"><div class="t" style="color:var(--reach);">${zh?'注销账号':'Delete account'}</div><div class="d">${zh?'删除账号及全部本地数据，不可恢复':'Delete account and all local data'}</div></div>
+        <div class="control"><button class="btn btn-danger btn-sm" onclick="Settings.confirmDelete()">${zh?'注销':'Delete'}</button></div></div></div>`;
+    }else if(this.tab==='notify'){
+      html=`<div class="settings-card"><h3>${zh?'通知设置':'Notifications'}</h3><div class="desc">${zh?'管理浏览器通知权限':'Manage browser notifications'}</div>
+        <div class="setting-row"><div class="info"><div class="t">${zh?'浏览器通知':'Browser notifications'}</div><div class="d">${zh?'资讯更新与评估完成时通知你':'Notify on news updates & completed evaluations'}</div></div>
+        <div class="control">${sw('notifyBrowser',"Settings.toggleNotify(this.checked)")}</div></div></div>`;
+    }else if(this.tab==='help'){
+      const faqs=zh?[
+        ['如何开始选校评估？','登录后点击导航栏「智能评估」，填写学术背景与申请偏好，提交后 AI 大脑会自动分析并生成保底 / 匹配 / 冲刺三档选校方案。'],
+        ['匹配概率是如何计算的？','系统综合你的 GPA、语言成绩、院校背景、科研实习经历等维度打分，与各校历史录取门槛比对得出概率；配置 AI 接口后还会由大模型生成深度文字分析。'],
+        ['右侧资讯栏的新闻从哪里来？','资讯栏通过 RSS 接口实时抓取 MIT News、Harvard Gazette、QS 等公开新闻源，每 10 分钟自动更新，点击标题可阅读原文。'],
+        ['我的数据安全吗？','所有账号与评估数据仅保存在你的浏览器本地，密码经加盐哈希加密，不会上传到我们的服务器。'],
+        ['忘记密码怎么办？','在登录页点击「忘记密码」，输入注册邮箱获取验证码后即可重置密码。'],
+        ['如何接入自己的 AI 大模型？','进入「设置 → AI 接口」，填入兼容 OpenAI 格式的 API 地址、Key 与模型名并启用即可。'],
+      ]:[
+        ['How do I start an assessment?','After signing in, open "Assessment", fill in your profile and submit — the AI builds a safe/match/reach school list.'],
+        ['How is the probability computed?','Your GPA, test scores, background and experience are scored and compared with each school\'s historical threshold.'],
+        ['Where does the news come from?','The rail pulls public RSS feeds (MIT News, Harvard Gazette, QS…) every 10 minutes. Click a title to read the original.'],
+        ['Is my data safe?','Everything stays in your browser storage; passwords are salted & hashed, never uploaded.'],
+        ['Forgot password?','Click "Forgot password" on the sign-in page, verify via email code and set a new one.'],
+        ['Bring my own LLM?','Go to Settings → AI Engine, enter an OpenAI-compatible endpoint, key and model, then enable it.'],
+      ];
+      html=`<div class="settings-card"><h3>${zh?'帮助中心':'Help Center'}</h3><div class="desc">${zh?'常见问题解答':'Frequently asked questions'}</div>
+        ${faqs.map((f,i)=>`<div class="faq-item" id="faq${i}"><button class="faq-q" onclick="document.getElementById('faq${i}').classList.toggle('open')">${f[0]}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div class="faq-a"><div>${f[1]}</div></div></div>`).join('')}</div>`;
+    }else if(this.tab==='service'){
+      html=`<div class="settings-card"><h3>${zh?'联系客服':'Contact Support'}</h3><div class="desc">${zh?'我们将在 24 小时内回复':'We reply within 24 hours'}</div>
+        <div class="contact-grid">
+          <div class="contact-card"><div class="ic">✉️</div><div class="t">${zh?'邮件支持':'Email'}</div><div class="d">support@admitpath.app</div></div>
+          <div class="contact-card"><div class="ic">💬</div><div class="t">${zh?'在线客服':'Live chat'}</div><div class="d">${zh?'工作日 9:00-18:00':'Weekdays 9:00-18:00'}</div></div>
+          <div class="contact-card"><div class="ic">📚</div><div class="t">${zh?'帮助文档':'Docs'}</div><div class="d">${zh?'见「帮助中心」':'See Help Center'}</div></div>
+        </div></div>
+      <div class="settings-card"><h3>${zh?'意见反馈':'Feedback'}</h3><div class="desc">${zh?'告诉我们你的建议或遇到的问题':'Suggestions or issues'}</div>
+        <div class="form-group"><input class="form-input" id="fbTitle" placeholder="${zh?'标题':'Subject'}"></div>
+        <div class="form-group"><textarea class="form-input" id="fbContent" rows="4" placeholder="${zh?'请描述你的问题或建议…':'Describe your issue or suggestion…'}"></textarea></div>
+        <button class="btn btn-accent" onclick="Settings.sendFeedback()">${zh?'提交反馈':'Send'}</button></div>`;
+    }else if(this.tab==='about'){
+      html=`<div class="settings-card" style="text-align:center;padding:1.6rem;">
+        <div class="logo-icon" style="width:44px;height:44px;font-size:1.2rem;margin:0 auto .6rem;">A</div>
+        <h3>AdmitPath</h3>
+        <p style="font-size:.8rem;color:var(--text-tertiary);margin:.3rem 0 .9rem;">${zh?'AI 驱动的留学选校智能匹配系统':'AI-powered university matching'} · v2.0.0</p>
+        <div style="display:flex;gap:.6rem;justify-content:center;">
+          <button class="btn btn-secondary btn-sm" onclick="App.openModal('termsModal')">${zh?'用户协议':'Terms'}</button>
+          <button class="btn btn-secondary btn-sm" onclick="App.openModal('privacyModal')">${zh?'隐私政策':'Privacy'}</button>
+        </div>
+        <p style="font-size:.72rem;color:var(--text-tertiary);margin-top:1rem;">© 2026 AdmitPath. ${zh?'匹配结果仅供参考，请以院校官网为准。':'Results are for reference only.'}</p></div>`;
+    }
+    c.innerHTML=html;
+  },
+  show(tab){ this.tab=tab; this.render(); },
+  saveAi(){
+    this.data.aiEndpoint=$('aiEndpointInput').value.trim()||this.data.aiEndpoint;
+    this.data.aiKey=$('aiKeyInput').value.trim();
+    this.data.aiModel=$('aiModelInput').value.trim()||'deepseek-chat';
+    this.save();
+    toast(this.data.lang==='en'?'AI configuration saved':'AI 接口配置已保存','success');
+  },
+  fillDeepSeek(){
+    this.data.aiEndpoint='https://api.deepseek.com/chat/completions';
+    this.data.aiModel='deepseek-chat';
+    this.data.aiStream=true;
+    this.data.aiEnabled=true;
+    this.save();
+    this.render();
+    toast(this.data.lang==='en'?'DeepSeek defaults applied — add your API Key to finish':'已填入 DeepSeek 默认配置，请补充 API Key','success');
+  },
+  async testAi(){
+    this.saveAi();
+    const btn=$('aiTestBtn'); btn.disabled=true; btn.textContent=this.data.lang==='en'?'Testing…':'测试中…';
+    const ok=await AIEngine.test();
+    btn.disabled=false; btn.textContent=this.data.lang==='en'?'Test connection':'测试连接';
+    toast(ok?(this.data.lang==='en'?'Connection successful':'连接成功，AI 接口可用'):((this.data.lang==='en'?'Connection failed: ':'连接失败：')+(AIEngine.lastError||(this.data.lang==='en'?'check endpoint & key':'请检查地址与 Key'))), ok?'success':'error');
+  },
+  toggleNotify(on){
+    if(on&&'Notification' in window){ Notification.requestPermission().then(p=>{ this.data.notifyBrowser=(p==='granted'); this.save(); this.render(); }); }
+    else { this.data.notifyBrowser=false; this.save(); }
+  },
+  showChangePwd(){ const b=$('changePwdBox'); b.style.display=b.style.display==='none'?'block':'none'; },
+  async doChangePwd(){
+    const r=await Auth.changePassword($('oldPwd').value,$('newPwd').value);
+    if(r===true){ toast(this.data.lang==='en'?'Password changed':'密码修改成功','success'); this.render(); }
+    else if(r==='wrong') toast(this.data.lang==='en'?'Current password incorrect':'当前密码不正确','error');
+    else toast(this.data.lang==='en'?'New password too weak':'新密码至少 8 位且含字母和数字','error');
+  },
+  confirmDelete(){
+    if(confirm(this.data.lang==='en'?'Delete your account and ALL local data? This cannot be undone.':'确定注销账号？全部本地数据将被删除且不可恢复。')) Auth.deleteAccount();
+  },
+  sendFeedback(){
+    const title=$('fbTitle').value.trim(), content=$('fbContent').value.trim();
+    if(!title||!content) return toast(this.data.lang==='en'?'Please fill in subject and content':'请填写标题和内容','error');
+    const list=JSON.parse(localStorage.getItem('admitpath-feedback')||'[]');
+    list.push({title,content,at:Date.now(),user:(Auth.currentUser()||{}).username});
+    localStorage.setItem('admitpath-feedback',JSON.stringify(list));
+    $('fbTitle').value=''; $('fbContent').value='';
+    toast(this.data.lang==='en'?'Feedback submitted, thank you!':'反馈已提交，感谢你的建议！','success');
+  }
+};
+
+/* ================= 院校资讯（联网自动更新） ================= */
+const News={
+  feeds:[
+    {name:'MIT News',url:'https://news.mit.edu/rss/feed'},
+    {name:'Harvard Gazette',url:'https://news.harvard.edu/gazette/feed/'},
+    {name:'Berkeley News',url:'https://news.berkeley.edu/feed/'},
+    {name:'QS TopUniversities',url:'https://www.topuniversities.com/rss.xml'},
+    {name:'The PIE News',url:'https://thepienews.com/feed/'},
+    {name:'Inside Higher Ed',url:'https://feeds.feedburner.com/InsideHigherEd'},
+    {name:'Study International',url:'https://www.studyinternational.com/feed/'},
+  ],
+  fallback:[
+    {title:'MIT 宣布扩大本科生经济援助计划，家庭年收入 20 万美元以下免学费',link:'https://news.mit.edu',source:'MIT News',pubDate:new Date().toISOString()},
+    {title:'QS 发布最新世界大学学科排名，计算机科学竞争持续升温',link:'https://www.topuniversities.com',source:'QS TopUniversities',pubDate:new Date().toISOString()},
+    {title:'哈佛大学公布新一轮研究生奖学金与助研岗位计划',link:'https://news.harvard.edu/gazette/',source:'Harvard Gazette',pubDate:new Date().toISOString()},
+    {title:'英国多所大学更新 2026 入学季语言成绩要求',link:'https://thepienews.com',source:'The PIE News',pubDate:new Date().toISOString()},
+    {title:'美国研究生院申请季开启，多所名校提前截止首轮申请',link:'https://www.insidehighered.com',source:'Inside Higher Ed',pubDate:new Date().toISOString()},
+    {title:'澳大利亚高校扩大国际生招生名额并新增奖学金项目',link:'https://www.studyinternational.com',source:'Study International',pubDate:new Date().toISOString()},
+  ],
+  timer:null,
+  async fetchFeed(feed){
+    try{
+      const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),9000);
+      const res=await fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(feed.url),{signal:ctl.signal});
+      clearTimeout(to);
+      const json=await res.json();
+      if(json.status!=='ok'||!Array.isArray(json.items)) return [];
+      return json.items.slice(0,6).map(it=>({title:(it.title||'').trim(),link:it.link||'#',source:feed.name,pubDate:it.pubDate||''}));
+    }catch(e){ return []; }
+  },
+  async refresh(manual){
+    const list=$('newsList'), status=$('newsStatus');
+    const zh=Settings.data.lang==='zh';
+    if(manual){ status.innerHTML=`<span>${zh?'正在联网获取最新资讯…':'Fetching latest news…'}</span>`; }
+    if(!list.dataset.loaded){
+      list.innerHTML=Array.from({length:6}).map(()=>`<div class="news-skeleton"><div class="skel" style="width:92%"></div><div class="skel" style="width:70%"></div><div class="skel" style="width:40%;height:9px;"></div></div>`).join('');
+    }
+    const results=await Promise.all(this.feeds.map(f=>this.fetchFeed(f)));
+    let items=results.flat().filter(i=>i.title);
+    const seen=new Set(); items=items.filter(i=>{ if(seen.has(i.title))return false; seen.add(i.title); return true; });
+    items.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
+    items=items.slice(0,15);
+    const now=new Date();
+    if(items.length===0){
+      items=this.fallback;
+      status.innerHTML=`<span style="color:var(--match);">${zh?'网络受限，展示精选资讯':'Network limited — showing curated news'}</span>`;
+    }else{
+      status.innerHTML=`<span style="color:var(--safe);">● ${zh?'已联网更新':'Updated'}</span><span>${now.toLocaleTimeString(zh?'zh-CN':'en-US',{hour:'2-digit',minute:'2-digit'})}</span>`;
+    }
+    list.dataset.loaded='1';
+    list.innerHTML=items.map(i=>`<a class="news-item" href="${i.link}" target="_blank" rel="noopener noreferrer">
+      <div class="news-item-title">${i.title.replace(/</g,'&lt;')}</div>
+      <div class="news-item-meta"><span class="news-source">${i.source}</span><span>${timeAgo(i.pubDate)}</span></div></a>`).join('');
+    if(Settings.data.notifyBrowser&&manual&&'Notification' in window&&Notification.permission==='granted'){
+      new Notification('AdmitPath',{body:zh?'院校资讯已更新':'University news updated'});
+    }
+  },
+  setupTimer(){
+    clearInterval(this.timer);
+    if(Settings.data.newsAuto) this.timer=setInterval(()=>this.refresh(false),10*60*1000);
+  },
+  init(){ this.refresh(false); this.setupTimer(); }
+};
+</script>
+<script>
+/* ================= 院校数据库 ================= */
+const UNIVERSITIES=[
+  {id:'mit',name:'麻省理工学院',nameEn:'MIT',country:'美国',city:'Cambridge, MA',qsRank:1,website:'https://www.mit.edu',threshold:108,avgGpaRequired:3.9,avgIeltsRequired:7.5,tuitionRange:[55000,60000],duration:'2年',programs:[{name:'MEng in EECS',deadline:'2025-12-15',requirements:['GPA 3.9+','IELTS 7.5+','GRE 330+']}]},
+  {id:'stanford',name:'斯坦福大学',nameEn:'Stanford University',country:'美国',city:'Stanford, CA',qsRank:3,website:'https://www.stanford.edu',threshold:107,avgGpaRequired:3.9,avgIeltsRequired:7.5,tuitionRange:[58000,62000],duration:'2年',programs:[{name:'MS in Computer Science',deadline:'2025-12-01',requirements:['GPA 3.9+','IELTS 7.5+']}]},
+  {id:'harvard',name:'哈佛大学',nameEn:'Harvard University',country:'美国',city:'Cambridge, MA',qsRank:4,website:'https://www.harvard.edu',threshold:106,avgGpaRequired:3.9,avgIeltsRequired:7.5,tuitionRange:[52000,58000],duration:'2年',programs:[{name:'MEng in Computational Science',deadline:'2025-12-15',requirements:['GPA 3.9+','IELTS 7.5+']}]},
+  {id:'caltech',name:'加州理工学院',nameEn:'Caltech',country:'美国',city:'Pasadena, CA',qsRank:15,website:'https://www.caltech.edu',threshold:105,avgGpaRequired:3.85,avgIeltsRequired:7.5,tuitionRange:[56000,60000],duration:'2年',programs:[{name:'MS in Applied Science',deadline:'2025-12-15',requirements:['GPA 3.8+','IELTS 7.5+','GRE 325+']}]},
+  {id:'cmu',name:'卡内基梅隆大学',nameEn:'Carnegie Mellon University',country:'美国',city:'Pittsburgh, PA',qsRank:52,website:'https://www.cmu.edu',threshold:100,avgGpaRequired:3.7,avgIeltsRequired:7.0,tuitionRange:[50000,55000],duration:'2年',programs:[{name:'MS in Computer Science',deadline:'2025-12-01',requirements:['GPA 3.7+','IELTS 7.0+']}]},
+  {id:'columbia',name:'哥伦比亚大学',nameEn:'Columbia University',country:'美国',city:'New York, NY',qsRank:23,website:'https://www.columbia.edu',threshold:102,avgGpaRequired:3.8,avgIeltsRequired:7.5,tuitionRange:[55000,60000],duration:'2年',programs:[{name:'MS in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.8+','IELTS 7.5+']}]},
+  {id:'nyu',name:'纽约大学',nameEn:'New York University',country:'美国',city:'New York, NY',qsRank:38,website:'https://www.nyu.edu',threshold:95,avgGpaRequired:3.5,avgIeltsRequired:7.0,tuitionRange:[45000,50000],duration:'2年',programs:[{name:'MS in Computer Science',deadline:'2025-12-01',requirements:['GPA 3.5+','IELTS 7.0+']}]},
+  {id:'ucla',name:'加州大学洛杉矶分校',nameEn:'UCLA',country:'美国',city:'Los Angeles, CA',qsRank:29,website:'https://www.ucla.edu',threshold:96,avgGpaRequired:3.6,avgIeltsRequired:7.0,tuitionRange:[35000,45000],duration:'2年',programs:[{name:'MS in Computer Science',deadline:'2025-12-01',requirements:['GPA 3.6+','IELTS 7.0+']}]},
+  {id:'usc',name:'南加州大学',nameEn:'USC',country:'美国',city:'Los Angeles, CA',qsRank:125,website:'https://www.usc.edu',threshold:90,avgGpaRequired:3.4,avgIeltsRequired:6.5,tuitionRange:[48000,52000],duration:'2年',programs:[{name:'MS in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.4+','IELTS 6.5+']}]},
+  {id:'bu',name:'波士顿大学',nameEn:'Boston University',country:'美国',city:'Boston, MA',qsRank:108,website:'https://www.bu.edu',threshold:88,avgGpaRequired:3.3,avgIeltsRequired:6.5,tuitionRange:[35000,40000],duration:'2年',programs:[{name:'MS in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.3+','IELTS 6.5+']}]},
+  {id:'oxford',name:'牛津大学',nameEn:'University of Oxford',country:'英国',city:'Oxford',qsRank:2,website:'https://www.ox.ac.uk',threshold:107,avgGpaRequired:3.9,avgIeltsRequired:7.5,tuitionRange:[35000,45000],duration:'1年',programs:[{name:'MSc in Computer Science',deadline:'2025-01-10',requirements:['GPA 3.9+','IELTS 7.5+']}]},
+  {id:'cambridge',name:'剑桥大学',nameEn:'University of Cambridge',country:'英国',city:'Cambridge',qsRank:5,website:'https://www.cam.ac.uk',threshold:107,avgGpaRequired:3.9,avgIeltsRequired:7.5,tuitionRange:[35000,45000],duration:'1年',programs:[{name:'MPhil in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.9+','IELTS 7.5+']}]},
+  {id:'imperial',name:'帝国理工学院',nameEn:'Imperial College London',country:'英国',city:'London',qsRank:6,website:'https://www.imperial.ac.uk',threshold:103,avgGpaRequired:3.8,avgIeltsRequired:7.0,tuitionRange:[38000,42000],duration:'1年',programs:[{name:'MSc in Computing',deadline:'2025-01-15',requirements:['GPA 3.8+','IELTS 7.0+']}]},
+  {id:'ucl',name:'伦敦大学学院',nameEn:'UCL',country:'英国',city:'London',qsRank:9,website:'https://www.ucl.ac.uk',threshold:100,avgGpaRequired:3.7,avgIeltsRequired:7.0,tuitionRange:[32000,38000],duration:'1年',programs:[{name:'MSc in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.7+','IELTS 7.0+']}]},
+  {id:'lse',name:'伦敦政治经济学院',nameEn:'LSE',country:'英国',city:'London',qsRank:45,website:'https://www.lse.ac.uk',threshold:101,avgGpaRequired:3.8,avgIeltsRequired:7.5,tuitionRange:[30000,35000],duration:'1年',programs:[{name:'MSc in Data Science',deadline:'2025-01-15',requirements:['GPA 3.8+','IELTS 7.5+']}]},
+  {id:'edinburgh',name:'爱丁堡大学',nameEn:'University of Edinburgh',country:'英国',city:'Edinburgh',qsRank:22,website:'https://www.ed.ac.uk',threshold:94,avgGpaRequired:3.5,avgIeltsRequired:6.5,tuitionRange:[28000,32000],duration:'1年',programs:[{name:'MSc in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.5+','IELTS 6.5+']}]},
+  {id:'manchester',name:'曼彻斯特大学',nameEn:'University of Manchester',country:'英国',city:'Manchester',qsRank:32,website:'https://www.manchester.ac.uk',threshold:88,avgGpaRequired:3.3,avgIeltsRequired:6.5,tuitionRange:[25000,30000],duration:'1年',programs:[{name:'MSc in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.3+','IELTS 6.5+']}]},
+  {id:'kcl',name:'伦敦国王学院',nameEn:"King's College London",country:'英国',city:'London',qsRank:40,website:'https://www.kcl.ac.uk',threshold:89,avgGpaRequired:3.4,avgIeltsRequired:7.0,tuitionRange:[28000,33000],duration:'1年',programs:[{name:'MSc in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.4+','IELTS 7.0+']}]},
+  {id:'toronto',name:'多伦多大学',nameEn:'University of Toronto',country:'加拿大',city:'Toronto',qsRank:21,website:'https://www.utoronto.ca',threshold:96,avgGpaRequired:3.7,avgIeltsRequired:7.0,tuitionRange:[25000,35000],duration:'2年',programs:[{name:'MSc in Computer Science',deadline:'2025-12-01',requirements:['GPA 3.7+','IELTS 7.0+']}]},
+  {id:'ubc',name:'英属哥伦比亚大学',nameEn:'UBC',country:'加拿大',city:'Vancouver',qsRank:34,website:'https://www.ubc.ca',threshold:93,avgGpaRequired:3.6,avgIeltsRequired:7.0,tuitionRange:[22000,30000],duration:'2年',programs:[{name:'MSc in Computer Science',deadline:'2025-12-01',requirements:['GPA 3.6+','IELTS 7.0+']}]},
+  {id:'mcgill',name:'麦吉尔大学',nameEn:'McGill University',country:'加拿大',city:'Montreal',qsRank:30,website:'https://www.mcgill.ca',threshold:94,avgGpaRequired:3.6,avgIeltsRequired:6.5,tuitionRange:[20000,28000],duration:'2年',programs:[{name:'MSc in Computer Science',deadline:'2025-12-01',requirements:['GPA 3.6+','IELTS 6.5+']}]},
+  {id:'waterloo',name:'滑铁卢大学',nameEn:'University of Waterloo',country:'加拿大',city:'Waterloo',qsRank:112,website:'https://uwaterloo.ca',threshold:90,avgGpaRequired:3.5,avgIeltsRequired:7.0,tuitionRange:[20000,28000],duration:'2年',programs:[{name:'MMath in Computer Science',deadline:'2025-12-01',requirements:['GPA 3.5+','IELTS 7.0+']}]},
+  {id:'mcmaster',name:'麦克马斯特大学',nameEn:'McMaster University',country:'加拿大',city:'Hamilton',qsRank:176,website:'https://www.mcmaster.ca',threshold:82,avgGpaRequired:3.2,avgIeltsRequired:6.5,tuitionRange:[18000,25000],duration:'2年',programs:[{name:'MSc in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.2+','IELTS 6.5+']}]},
+  {id:'melbourne',name:'墨尔本大学',nameEn:'University of Melbourne',country:'澳大利亚',city:'Melbourne',qsRank:13,website:'https://www.unimelb.edu.au',threshold:92,avgGpaRequired:3.6,avgIeltsRequired:7.0,tuitionRange:[30000,40000],duration:'2年',programs:[{name:'Master of Computer Science',deadline:'2025-10-31',requirements:['GPA 3.6+','IELTS 7.0+']}]},
+  {id:'anu',name:'澳大利亚国立大学',nameEn:'Australian National University',country:'澳大利亚',city:'Canberra',qsRank:30,website:'https://www.anu.edu.au',threshold:88,avgGpaRequired:3.4,avgIeltsRequired:6.5,tuitionRange:[28000,35000],duration:'2年',programs:[{name:'Master of Computing',deadline:'2025-10-31',requirements:['GPA 3.4+','IELTS 6.5+']}]},
+  {id:'sydney',name:'悉尼大学',nameEn:'University of Sydney',country:'澳大利亚',city:'Sydney',qsRank:18,website:'https://www.sydney.edu.au',threshold:90,avgGpaRequired:3.5,avgIeltsRequired:6.5,tuitionRange:[32000,40000],duration:'1.5年',programs:[{name:'Master of Computer Science',deadline:'2025-12-15',requirements:['GPA 3.5+','IELTS 6.5+']}]},
+  {id:'unsw',name:'新南威尔士大学',nameEn:'UNSW Sydney',country:'澳大利亚',city:'Sydney',qsRank:19,website:'https://www.unsw.edu.au',threshold:91,avgGpaRequired:3.5,avgIeltsRequired:6.5,tuitionRange:[30000,38000],duration:'2年',programs:[{name:'Master of Information Technology',deadline:'2025-11-30',requirements:['GPA 3.5+','IELTS 6.5+']}]},
+  {id:'nus',name:'新加坡国立大学',nameEn:'National University of Singapore',country:'新加坡',city:'Singapore',qsRank:8,website:'https://www.nus.edu.sg',threshold:100,avgGpaRequired:3.7,avgIeltsRequired:6.5,tuitionRange:[25000,35000],duration:'1年',programs:[{name:'MSc in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.7+','IELTS 6.5+']}]},
+  {id:'ntu',name:'南洋理工大学',nameEn:'Nanyang Technological University',country:'新加坡',city:'Singapore',qsRank:26,website:'https://www.ntu.edu.sg',threshold:96,avgGpaRequired:3.6,avgIeltsRequired:6.5,tuitionRange:[22000,30000],duration:'1年',programs:[{name:'MSc in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.6+','IELTS 6.5+']}]},
+  {id:'hku',name:'香港大学',nameEn:'University of Hong Kong',country:'香港',city:'Hong Kong',qsRank:17,website:'https://www.hku.hk',threshold:95,avgGpaRequired:3.6,avgIeltsRequired:6.5,tuitionRange:[20000,28000],duration:'1年',programs:[{name:'MSc in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.6+','IELTS 6.5+']}]},
+  {id:'hkust',name:'香港科技大学',nameEn:'HKUST',country:'香港',city:'Hong Kong',qsRank:47,website:'https://www.ust.hk',threshold:93,avgGpaRequired:3.5,avgIeltsRequired:6.5,tuitionRange:[18000,25000],duration:'1年',programs:[{name:'MSc in Big Data Technology',deadline:'2025-01-15',requirements:['GPA 3.5+','IELTS 6.5+']}]},
+  {id:'cuhk',name:'香港中文大学',nameEn:'CUHK',country:'香港',city:'Hong Kong',qsRank:36,website:'https://www.cuhk.edu.hk',threshold:90,avgGpaRequired:3.4,avgIeltsRequired:6.5,tuitionRange:[18000,24000],duration:'1年',programs:[{name:'MSc in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.4+','IELTS 6.5+']}]},
+  {id:'eth',name:'苏黎世联邦理工学院',nameEn:'ETH Zurich',country:'瑞士',city:'Zurich',qsRank:7,website:'https://ethz.ch',threshold:104,avgGpaRequired:3.8,avgIeltsRequired:7.0,tuitionRange:[1500,3000],duration:'2年',programs:[{name:'MSc in Computer Science',deadline:'2025-12-15',requirements:['GPA 3.8+','IELTS 7.0+']}]},
+  {id:'epfl',name:'洛桑联邦理工学院',nameEn:'EPFL',country:'瑞士',city:'Lausanne',qsRank:32,website:'https://www.epfl.ch',threshold:98,avgGpaRequired:3.7,avgIeltsRequired:7.0,tuitionRange:[1500,3000],duration:'2年',programs:[{name:'MSc in Computer Science',deadline:'2025-12-15',requirements:['GPA 3.7+','IELTS 7.0+']}]},
+  {id:'tum',name:'慕尼黑工业大学',nameEn:'TU Munich',country:'德国',city:'Munich',qsRank:28,website:'https://www.tum.de',threshold:92,avgGpaRequired:3.5,avgIeltsRequired:6.5,tuitionRange:[0,500],duration:'2年',programs:[{name:'MSc in Informatics',deadline:'2025-05-31',requirements:['GPA 3.5+','IELTS 6.5+']}]},
+  {id:'uva',name:'阿姆斯特丹大学',nameEn:'University of Amsterdam',country:'荷兰',city:'Amsterdam',qsRank:53,website:'https://www.uva.nl',threshold:85,avgGpaRequired:3.3,avgIeltsRequired:6.5,tuitionRange:[12000,18000],duration:'2年',programs:[{name:'MSc in Computer Science',deadline:'2025-01-31',requirements:['GPA 3.3+','IELTS 6.5+']}]},
+  {id:'kth',name:'瑞典皇家理工学院',nameEn:'KTH Royal Institute',country:'瑞典',city:'Stockholm',qsRank:73,website:'https://www.kth.se',threshold:80,avgGpaRequired:3.2,avgIeltsRequired:6.5,tuitionRange:[15000,20000],duration:'2年',programs:[{name:'MSc in Computer Science',deadline:'2025-01-15',requirements:['GPA 3.2+','IELTS 6.5+']}]}
+];
+/* 扩充院校库：美英加澳新港欧亚共 180 所，合计 216 所 */
+const EXTRA_UNIVERSITIES=[
+  ['princeton','普林斯顿大学','Princeton University','美国','Princeton, NJ',5,'https://www.princeton.edu',107,3.9,7.5,[55000,60000],'2年','MS in Computer Science','2025-12-15',['GPA 3.9+','IELTS 7.5+']],
+  ['yale','耶鲁大学','Yale University','美国','New Haven, CT',10,'https://www.yale.edu',106,3.85,7.5,[56000,61000],'2年','MS in Computer Science','2025-12-15',['GPA 3.8+','IELTS 7.5+']],
+  ['upenn','宾夕法尼亚大学','University of Pennsylvania','美国','Philadelphia, PA',11,'https://www.upenn.edu',104,3.8,7.5,[56000,62000],'2年','MCIT','2025-12-15',['GPA 3.8+','IELTS 7.5+']],
+  ['cornell','康奈尔大学','Cornell University','美国','Ithaca, NY',16,'https://www.cornell.edu',103,3.8,7.5,[40000,50000],'2年','MEng in Computer Science','2025-12-15',['GPA 3.8+','IELTS 7.5+']],
+  ['uchicago','芝加哥大学','University of Chicago','美国','Chicago, IL',13,'https://www.uchicago.edu',104,3.8,7.5,[58000,63000],'2年','MS in Computer Science','2025-12-15',['GPA 3.8+','IELTS 7.5+']],
+  ['jhu','约翰霍普金斯大学','Johns Hopkins University','美国','Baltimore, MD',24,'https://www.jhu.edu',99,3.7,7.0,[55000,60000],'2年','MSE in Computer Science','2025-12-15',['GPA 3.7+','IELTS 7.0+']],
+  ['northwestern','西北大学','Northwestern University','美国','Evanston, IL',29,'https://www.northwestern.edu',98,3.7,7.0,[56000,61000],'2年','MS in Computer Science','2025-12-15',['GPA 3.7+','IELTS 7.0+']],
+  ['duke','杜克大学','Duke University','美国','Durham, NC',39,'https://www.duke.edu',99,3.7,7.0,[55000,60000],'2年','MS in Computer Science','2025-12-15',['GPA 3.7+','IELTS 7.0+']],
+  ['brown','布朗大学','Brown University','美国','Providence, RI',60,'https://www.brown.edu',97,3.6,7.0,[58000,63000],'2年','ScM in Computer Science','2025-12-15',['GPA 3.6+','IELTS 7.0+']],
+  ['dartmouth','达特茅斯学院','Dartmouth College','美国','Hanover, NH',120,'https://www.dartmouth.edu',95,3.6,7.0,[58000,62000],'2年','MS in Computer Science','2025-12-15',['GPA 3.6+','IELTS 7.0+']],
+  ['rice','莱斯大学','Rice University','美国','Houston, TX',89,'https://www.rice.edu',94,3.6,7.0,[48000,54000],'2年','MCS','2025-12-15',['GPA 3.6+','IELTS 7.0+']],
+  ['vanderbilt','范德堡大学','Vanderbilt University','美国','Nashville, TN',129,'https://www.vanderbilt.edu',92,3.5,7.0,[50000,55000],'2年','MS in Computer Science','2025-01-15',['GPA 3.5+','IELTS 7.0+']],
+  ['notredame','圣母大学','University of Notre Dame','美国','Notre Dame, IN',155,'https://www.nd.edu',90,3.5,7.0,[52000,57000],'2年','MS in Computer Science','2025-01-15',['GPA 3.5+','IELTS 7.0+']],
+  ['georgetown','乔治城大学','Georgetown University','美国','Washington, DC',160,'https://www.georgetown.edu',90,3.5,7.0,[50000,56000],'2年','MS in Computer Science','2025-01-15',['GPA 3.5+','IELTS 7.0+']],
+  ['emory','埃默里大学','Emory University','美国','Atlanta, GA',166,'https://www.emory.edu',89,3.4,7.0,[50000,55000],'2年','MS in Computer Science','2025-01-15',['GPA 3.4+','IELTS 7.0+']],
+  ['wustl','圣路易斯华盛顿大学','Washington University in St. Louis','美国','St. Louis, MO',97,'https://www.wustl.edu',93,3.5,7.0,[55000,60000],'2年','MS in Computer Science','2025-01-15',['GPA 3.5+','IELTS 7.0+']],
+  ['ucberkeley','加州大学伯克利分校','UC Berkeley','美国','Berkeley, CA',12,'https://www.berkeley.edu',105,3.8,7.0,[30000,45000],'2年','MEng in EECS','2025-12-15',['GPA 3.8+','IELTS 7.0+']],
+  ['ucsd','加州大学圣地亚哥分校','UC San Diego','美国','San Diego, CA',62,'https://www.ucsd.edu',97,3.6,7.0,[30000,42000],'2年','MS in Computer Science','2025-12-15',['GPA 3.6+','IELTS 7.0+']],
+  ['ucdavis','加州大学戴维斯分校','UC Davis','美国','Davis, CA',102,'https://www.ucdavis.edu',89,3.4,6.5,[28000,40000],'2年','MS in Computer Science','2025-01-15',['GPA 3.4+','IELTS 6.5+']],
+  ['uci','加州大学尔湾分校','UC Irvine','美国','Irvine, CA',122,'https://www.uci.edu',89,3.4,6.5,[28000,40000],'2年','MS in Computer Science','2025-01-15',['GPA 3.4+','IELTS 6.5+']],
+  ['ucsb','加州大学圣塔芭芭拉分校','UC Santa Barbara','美国','Santa Barbara, CA',133,'https://www.ucsb.edu',90,3.4,6.5,[28000,40000],'2年','MS in Computer Science','2025-01-15',['GPA 3.4+','IELTS 6.5+']],
+  ['umich','密歇根大学安娜堡分校','University of Michigan','美国','Ann Arbor, MI',33,'https://www.umich.edu',99,3.7,7.0,[32000,48000],'2年','MS in Computer Science','2025-12-15',['GPA 3.7+','IELTS 7.0+']],
+  ['uiuc','伊利诺伊大学香槟分校','UIUC','美国','Urbana, IL',64,'https://www.illinois.edu',98,3.7,7.0,[30000,42000],'2年','MS in Computer Science','2025-12-15',['GPA 3.7+','IELTS 7.0+']],
+  ['gatech','佐治亚理工学院','Georgia Tech','美国','Atlanta, GA',57,'https://www.gatech.edu',97,3.6,7.0,[30000,40000],'2年','MS in Computer Science','2025-12-15',['GPA 3.6+','IELTS 7.0+']],
+  ['purdue','普渡大学','Purdue University','美国','West Lafayette, IN',88,'https://www.purdue.edu',90,3.5,6.5,[28000,36000],'2年','MS in Computer Science','2025-01-15',['GPA 3.5+','IELTS 6.5+']],
+  ['wisc','威斯康星大学麦迪逊分校','UW-Madison','美国','Madison, WI',83,'https://www.wisc.edu',92,3.5,6.5,[28000,38000],'2年','MS in Computer Science','2025-01-15',['GPA 3.5+','IELTS 6.5+']],
+  ['umn','明尼苏达大学双城分校','University of Minnesota','美国','Minneapolis, MN',142,'https://www.umn.edu',86,3.3,6.5,[26000,34000],'2年','MS in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['osu','俄亥俄州立大学','Ohio State University','美国','Columbus, OH',151,'https://www.osu.edu',85,3.3,6.5,[28000,36000],'2年','MS in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['psu','宾夕法尼亚州立大学','Penn State','美国','University Park, PA',89,'https://www.psu.edu',87,3.3,6.5,[30000,38000],'2年','MS in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['rutgers','罗格斯大学','Rutgers University','美国','New Brunswick, NJ',141,'https://www.rutgers.edu',84,3.2,6.5,[28000,36000],'2年','MS in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['umd','马里兰大学','University of Maryland','美国','College Park, MD',123,'https://www.umd.edu',90,3.5,7.0,[28000,38000],'2年','MS in Computer Science','2025-01-15',['GPA 3.5+','IELTS 7.0+']],
+  ['tamu','德州农工大学','Texas A&M University','美国','College Station, TX',134,'https://www.tamu.edu',85,3.3,6.5,[22000,32000],'2年','MS in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['utaustin','德州大学奥斯汀分校','UT Austin','美国','Austin, TX',58,'https://www.utexas.edu',98,3.7,7.0,[28000,40000],'2年','MS in Computer Science','2025-12-15',['GPA 3.7+','IELTS 7.0+']],
+  ['uw','华盛顿大学','University of Washington','美国','Seattle, WA',63,'https://www.washington.edu',99,3.7,7.0,[35000,45000],'2年','MS in Computer Science','2025-12-15',['GPA 3.7+','IELTS 7.0+']],
+  ['neu','东北大学','Northeastern University','美国','Boston, MA',187,'https://www.northeastern.edu',84,3.2,6.5,[42000,48000],'2年','MS in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['syracuse','雪城大学','Syracuse University','美国','Syracuse, NY',200,'https://www.syracuse.edu',80,3.1,6.5,[42000,47000],'2年','MS in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['case','凯斯西储大学','Case Western Reserve University','美国','Cleveland, OH',185,'https://www.case.edu',82,3.2,6.5,[45000,50000],'2年','MS in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['tulane','杜兰大学','Tulane University','美国','New Orleans, LA',200,'https://www.tulane.edu',80,3.1,6.5,[48000,54000],'2年','MS in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['colorado','科罗拉多大学博尔德分校','CU Boulder','美国','Boulder, CO',200,'https://www.colorado.edu',84,3.3,6.5,[30000,38000],'2年','MS in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['asu','亚利桑那州立大学','Arizona State University','美国','Tempe, AZ',200,'https://www.asu.edu',78,3.0,6.5,[26000,34000],'2年','MS in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['uconnecticut','康涅狄格大学','University of Connecticut','美国','Storrs, CT',200,'https://www.uconn.edu',80,3.1,6.5,[32000,40000],'2年','MS in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['manchester_met','布里斯托大学','University of Bristol','英国','Bristol',55,'https://www.bristol.ac.uk',90,3.5,6.5,[28000,34000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.5+','IELTS 6.5+']],
+  ['warwick','华威大学','University of Warwick','英国','Coventry',61,'https://www.warwick.ac.uk',91,3.5,6.5,[27000,33000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.5+','IELTS 6.5+']],
+  ['glasgow','格拉斯哥大学','University of Glasgow','英国','Glasgow',76,'https://www.gla.ac.uk',87,3.4,6.5,[25000,30000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.4+','IELTS 6.5+']],
+  ['birmingham','伯明翰大学','University of Birmingham','英国','Birmingham',84,'https://www.birmingham.ac.uk',86,3.3,6.5,[24000,29000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['southampton','南安普顿大学','University of Southampton','英国','Southampton',78,'https://www.southampton.ac.uk',87,3.4,6.5,[24000,29000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.4+','IELTS 6.5+']],
+  ['leeds','利兹大学','University of Leeds','英国','Leeds',82,'https://www.leeds.ac.uk',85,3.3,6.5,[23000,28000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['sheffield','谢菲尔德大学','University of Sheffield','英国','Sheffield',96,'https://www.sheffield.ac.uk',84,3.2,6.5,[23000,28000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['nottingham','诺丁汉大学','University of Nottingham','英国','Nottingham',100,'https://www.nottingham.ac.uk',83,3.2,6.5,[22000,27000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['durham','杜伦大学','Durham University','英国','Durham',86,'https://www.durham.ac.uk',86,3.4,6.5,[25000,30000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.4+','IELTS 6.5+']],
+  ['standrews','圣安德鲁斯大学','University of St Andrews','英国','St Andrews',95,'https://www.st-andrews.ac.uk',88,3.4,6.5,[25000,30000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.4+','IELTS 6.5+']],
+  ['bath','巴斯大学','University of Bath','英国','Bath',150,'https://www.bath.ac.uk',83,3.2,6.5,[23000,28000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['exeter','埃克塞特大学','University of Exeter','英国','Exeter',153,'https://www.exeter.ac.uk',81,3.1,6.5,[22000,27000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['lancaster','兰卡斯特大学','Lancaster University','英国','Lancaster',132,'https://www.lancaster.ac.uk',81,3.1,6.5,[21000,26000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['york','约克大学','University of York','英国','York',162,'https://www.york.ac.uk',80,3.1,6.5,[21000,26000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['cardiff','卡迪夫大学','Cardiff University','英国','Cardiff',154,'https://www.cardiff.ac.uk',80,3.1,6.5,[21000,26000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['liverpool','利物浦大学','University of Liverpool','英国','Liverpool',165,'https://www.liverpool.ac.uk',79,3.0,6.5,[20000,25000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['qmul','伦敦玛丽女王大学','Queen Mary University of London','英国','London',135,'https://www.qmul.ac.uk',82,3.2,6.5,[22000,27000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['newcastle','纽卡斯尔大学','Newcastle University','英国','Newcastle',122,'https://www.ncl.ac.uk',80,3.1,6.5,[21000,26000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['aberdeen','阿伯丁大学','University of Aberdeen','英国','Aberdeen',200,'https://www.abdn.ac.uk',77,3.0,6.5,[19000,24000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['reading','雷丁大学','University of Reading','英国','Reading',200,'https://www.reading.ac.uk',76,3.0,6.5,[19000,24000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['mcgill2','阿尔伯塔大学','University of Alberta','加拿大','Edmonton',111,'https://www.ualberta.ca',84,3.3,6.5,[16000,24000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['montreal','蒙特利尔大学','Université de Montréal','加拿大','Montreal',141,'https://www.umontreal.ca',83,3.2,6.5,[15000,22000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['queens','皇后大学',"Queen's University",'加拿大','Kingston',193,'https://www.queensu.ca',82,3.2,6.5,[20000,28000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['western','西安大略大学','Western University','加拿大','London, ON',172,'https://www.uwo.ca',81,3.1,6.5,[22000,30000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['calgary','卡尔加里大学','University of Calgary','加拿大','Calgary',200,'https://www.ucalgary.ca',79,3.0,6.5,[16000,24000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['ottawa','渥太华大学','University of Ottawa','加拿大','Ottawa',200,'https://www.uottawa.ca',78,3.0,6.5,[18000,26000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['dalhousie','达尔豪斯大学','Dalhousie University','加拿大','Halifax',200,'https://www.dal.ca',77,3.0,6.5,[16000,23000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['sfu','西蒙菲莎大学','Simon Fraser University','加拿大','Burnaby',200,'https://www.sfu.ca',78,3.0,6.5,[18000,25000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['victoria','维多利亚大学','University of Victoria','加拿大','Victoria',200,'https://www.uvic.ca',76,3.0,6.5,[17000,24000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['yorku','约克大学（加拿大）','York University','加拿大','Toronto',200,'https://www.yorku.ca',75,2.9,6.5,[18000,25000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.5+']],
+  ['uq','昆士兰大学','University of Queensland','澳大利亚','Brisbane',40,'https://www.uq.edu.au',89,3.4,6.5,[28000,36000],'2年','Master of Computer Science','2025-11-30',['GPA 3.4+','IELTS 6.5+']],
+  ['monash','莫纳什大学','Monash University','澳大利亚','Melbourne',42,'https://www.monash.edu',88,3.4,6.5,[28000,36000],'2年','Master of Computer Science','2025-11-30',['GPA 3.4+','IELTS 6.5+']],
+  ['adelaide','阿德莱德大学','University of Adelaide','澳大利亚','Adelaide',89,'https://www.adelaide.edu.au',84,3.2,6.5,[26000,34000],'2年','Master of Computer Science','2025-11-30',['GPA 3.2+','IELTS 6.5+']],
+  ['uwa','西澳大学','University of Western Australia','澳大利亚','Perth',93,'https://www.uwa.edu.au',83,3.2,6.5,[25000,33000],'2年','Master of Computer Science','2025-11-30',['GPA 3.2+','IELTS 6.5+']],
+  ['uts','悉尼科技大学','University of Technology Sydney','澳大利亚','Sydney',137,'https://www.uts.edu.au',80,3.1,6.5,[26000,33000],'2年','Master of IT','2025-11-30',['GPA 3.1+','IELTS 6.5+']],
+  ['macquarie','麦考瑞大学','Macquarie University','澳大利亚','Sydney',195,'https://www.mq.edu.au',78,3.0,6.5,[25000,32000],'2年','Master of IT','2025-11-30',['GPA 3.0+','IELTS 6.5+']],
+  ['rmit','皇家墨尔本理工大学','RMIT University','澳大利亚','Melbourne',140,'https://www.rmit.edu.au',79,3.0,6.5,[25000,32000],'2年','Master of IT','2025-11-30',['GPA 3.0+','IELTS 6.5+']],
+  ['wollongong','伍伦贡大学','University of Wollongong','澳大利亚','Wollongong',185,'https://www.uow.edu.au',77,3.0,6.5,[23000,30000],'2年','Master of Computer Science','2025-11-30',['GPA 3.0+','IELTS 6.5+']],
+  ['newcastleau','纽卡斯尔大学（澳洲）','University of Newcastle','澳大利亚','Newcastle',197,'https://www.newcastle.edu.au',76,2.9,6.5,[23000,30000],'2年','Master of IT','2025-11-30',['GPA 2.9+','IELTS 6.5+']],
+  ['deakin','迪肯大学','Deakin University','澳大利亚','Melbourne',200,'https://www.deakin.edu.au',75,2.9,6.5,[24000,30000],'2年','Master of IT','2025-11-30',['GPA 2.9+','IELTS 6.5+']],
+  ['auckland','奥克兰大学','University of Auckland','新西兰','Auckland',68,'https://www.auckland.ac.nz',84,3.3,6.5,[25000,33000],'2年','Master of Computer Science','2025-11-30',['GPA 3.3+','IELTS 6.5+']],
+  ['otago','奥塔哥大学','University of Otago','新西兰','Dunedin',200,'https://www.otago.ac.nz',77,3.0,6.5,[22000,29000],'2年','Master of Computer Science','2025-11-30',['GPA 3.0+','IELTS 6.5+']],
+  ['cityu','香港城市大学','City University of Hong Kong','香港','Hong Kong',70,'https://www.cityu.edu.hk',88,3.3,6.5,[16000,22000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['polyu','香港理工大学','Hong Kong Polytechnic University','香港','Hong Kong',65,'https://www.polyu.edu.hk',88,3.3,6.5,[16000,22000],'1年','MSc in IT','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['hkbu','香港浸会大学','Hong Kong Baptist University','香港','Hong Kong',200,'https://www.hkbu.edu.hk',78,3.0,6.5,[15000,20000],'1年','MSc in IT Management','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['lingnan','岭南大学','Lingnan University','香港','Hong Kong',200,'https://www.ln.edu.hk',72,2.8,6.5,[14000,19000],'1年','MSc in Data Science','2025-01-15',['GPA 2.8+','IELTS 6.5+']],
+  ['smu','新加坡管理大学','Singapore Management University','新加坡','Singapore',200,'https://www.smu.edu.sg',85,3.3,6.5,[28000,36000],'1年','Master of IT in Business','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['sutd','新加坡科技设计大学','SUTD','新加坡','Singapore',200,'https://www.sutd.edu.sg',82,3.2,6.5,[25000,32000],'1年','Master of Engineering','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['uzh','苏黎世大学','University of Zurich','瑞士','Zurich',91,'https://www.uzh.ch',90,3.5,7.0,[1500,3000],'2年','MSc in Informatics','2025-04-30',['GPA 3.5+','IELTS 7.0+']],
+  ['unige','日内瓦大学','University of Geneva','瑞士','Geneva',128,'https://www.unige.ch',82,3.2,6.5,[1000,2500],'2年','MSc in Computer Science','2025-04-30',['GPA 3.2+','IELTS 6.5+']],
+  ['unil','洛桑大学','University of Lausanne','瑞士','Lausanne',200,'https://www.unil.ch',80,3.1,6.5,[1000,2500],'2年','MSc in Computer Science','2025-04-30',['GPA 3.1+','IELTS 6.5+']],
+  ['unibe','伯尔尼大学','University of Bern','瑞士','Bern',200,'https://www.unibe.ch',79,3.1,6.5,[1000,2500],'2年','MSc in Computer Science','2025-04-30',['GPA 3.1+','IELTS 6.5+']],
+  ['rwth','亚琛工业大学','RWTH Aachen','德国','Aachen',54,'https://www.rwth-aachen.de',90,3.5,6.5,[0,500],'2年','MSc in Computer Science','2025-05-31',['GPA 3.5+','IELTS 6.5+']],
+  ['tub','柏林工业大学','TU Berlin','德国','Berlin',136,'https://www.tu-berlin.de',84,3.3,6.5,[0,500],'2年','MSc in Computer Science','2025-05-31',['GPA 3.3+','IELTS 6.5+']],
+  ['lmu','慕尼黑大学','LMU Munich','德国','Munich',59,'https://www.lmu.de',88,3.4,6.5,[0,500],'2年','MSc in Computer Science','2025-05-31',['GPA 3.4+','IELTS 6.5+']],
+  ['heidelberg','海德堡大学','Heidelberg University','德国','Heidelberg',65,'https://www.uni-heidelberg.de',87,3.4,6.5,[0,500],'2年','MSc in Computer Science','2025-05-31',['GPA 3.4+','IELTS 6.5+']],
+  ['kit','卡尔斯鲁厄理工学院','KIT','德国','Karlsruhe',119,'https://www.kit.edu',85,3.3,6.5,[0,500],'2年','MSc in Computer Science','2025-05-31',['GPA 3.3+','IELTS 6.5+']],
+  ['tudresden','德累斯顿工业大学','TU Dresden','德国','Dresden',200,'https://www.tu-dresden.de',80,3.1,6.5,[0,500],'2年','MSc in Computer Science','2025-05-31',['GPA 3.1+','IELTS 6.5+']],
+  ['tudarmstadt','达姆施塔特工业大学','TU Darmstadt','德国','Darmstadt',200,'https://www.tu-darmstadt.de',81,3.2,6.5,[0,500],'2年','MSc in Computer Science','2025-05-31',['GPA 3.2+','IELTS 6.5+']],
+  ['hamburg','汉堡大学','University of Hamburg','德国','Hamburg',200,'https://www.uni-hamburg.de',78,3.0,6.5,[0,500],'2年','MSc in Computer Science','2025-05-31',['GPA 3.0+','IELTS 6.5+']],
+  ['freiburg','弗莱堡大学','University of Freiburg','德国','Freiburg',200,'https://www.uni-freiburg.de',79,3.1,6.5,[0,500],'2年','MSc in Computer Science','2025-05-31',['GPA 3.1+','IELTS 6.5+']],
+  ['stuttgart','斯图加特大学','University of Stuttgart','德国','Stuttgart',200,'https://www.uni-stuttgart.de',78,3.0,6.5,[0,500],'2年','MSc in Computer Science','2025-05-31',['GPA 3.0+','IELTS 6.5+']],
+  ['tudelft','代尔夫特理工大学','TU Delft','荷兰','Delft',47,'https://www.tudelft.nl',90,3.5,6.5,[15000,20000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.5+','IELTS 6.5+']],
+  ['tue','埃因霍温理工大学','TU Eindhoven','荷兰','Eindhoven',124,'https://www.tue.nl',84,3.3,6.5,[14000,19000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['leiden','莱顿大学','Leiden University','荷兰','Leiden',126,'https://www.leiden.edu',83,3.2,6.5,[14000,19000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['utrecht','乌得勒支大学','Utrecht University','荷兰','Utrecht',107,'https://www.uu.nl',85,3.3,6.5,[14000,19000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['groningen','格罗宁根大学','University of Groningen','荷兰','Groningen',139,'https://www.rug.nl',82,3.2,6.5,[13000,18000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['wur','瓦赫宁根大学','Wageningen University','荷兰','Wageningen',123,'https://www.wur.nl',82,3.2,6.5,[13000,18000],'2年','MSc in Data Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['vu','阿姆斯特丹自由大学','Vrije Universiteit Amsterdam','荷兰','Amsterdam',200,'https://www.vu.nl',79,3.1,6.5,[12000,17000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['erasmus','伊拉斯姆斯大学','Erasmus University Rotterdam','荷兰','Rotterdam',200,'https://www.eur.nl',80,3.1,6.5,[13000,18000],'1年','MSc in Data Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['maastricht','马斯特里赫特大学','Maastricht University','荷兰','Maastricht',200,'https://www.maastrichtuniversity.nl',78,3.0,6.5,[12000,17000],'1年','MSc in Data Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['twente','特温特大学','University of Twente','荷兰','Enschede',200,'https://www.utwente.nl',77,3.0,6.5,[12000,17000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['chalmers','查尔姆斯理工大学','Chalmers University','瑞典','Gothenburg',121,'https://www.chalmers.se',82,3.2,6.5,[14000,19000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['lund','隆德大学','Lund University','瑞典','Lund',85,'https://www.lu.se',84,3.3,6.5,[13000,18000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['uppsala','乌普萨拉大学','Uppsala University','瑞典','Uppsala',124,'https://www.uu.se',81,3.1,6.5,[13000,18000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['stockholm','斯德哥尔摩大学','Stockholm University','瑞典','Stockholm',200,'https://www.su.se',78,3.0,6.5,[12000,17000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['linkoping','林雪平大学','Linköping University','瑞典','Linköping',200,'https://www.liu.se',76,3.0,6.5,[11000,16000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['aalto','阿尔托大学','Aalto University','芬兰','Espoo',109,'https://www.aalto.fi',83,3.2,6.5,[12000,17000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['helsinki','赫尔辛基大学','University of Helsinki','芬兰','Helsinki',106,'https://www.helsinki.fi',82,3.2,6.5,[13000,18000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['dtu','丹麦技术大学','DTU','丹麦','Lyngby',104,'https://www.dtu.dk',83,3.2,6.5,[13000,18000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['ku','哥本哈根大学','University of Copenhagen','丹麦','Copenhagen',82,'https://www.ku.dk',84,3.3,6.5,[13000,18000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['aarhus','奥胡斯大学','Aarhus University','丹麦','Aarhus',143,'https://www.au.dk',80,3.1,6.5,[12000,17000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['ntnu','挪威科技大学','NTNU','挪威','Trondheim',200,'https://www.ntnu.no',79,3.1,6.5,[0,1000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['uio','奥斯陆大学','University of Oslo','挪威','Oslo',200,'https://www.uio.no',80,3.1,6.5,[0,1000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['sorbonne','索邦大学','Sorbonne University','法国','Paris',59,'https://www.sorbonne-universite.fr',86,3.4,6.5,[3000,5000],'2年','MSc in Computer Science','2025-03-15',['GPA 3.4+','IELTS 6.5+']],
+  ['psl','巴黎文理研究大学','PSL University','法国','Paris',26,'https://www.psl.eu',92,3.6,6.5,[3000,5000],'2年','MSc in Computer Science','2025-03-15',['GPA 3.6+','IELTS 6.5+']],
+  ['saclay','巴黎萨克雷大学','Paris-Saclay University','法国','Paris',71,'https://www.universite-paris-saclay.fr',85,3.3,6.5,[3000,5000],'2年','MSc in Computer Science','2025-03-15',['GPA 3.3+','IELTS 6.5+']],
+  ['polytechnique','巴黎综合理工学院','École Polytechnique','法国','Palaiseau',61,'https://www.polytechnique.edu',88,3.5,6.5,[8000,12000],'2年','MSc in Computer Science','2025-03-15',['GPA 3.5+','IELTS 6.5+']],
+  ['grenoble','格勒诺布尔大学','Grenoble Alpes University','法国','Grenoble',200,'https://www.univ-grenoble-alpes.fr',78,3.0,6.5,[3000,5000],'2年','MSc in Computer Science','2025-03-15',['GPA 3.0+','IELTS 6.5+']],
+  ['polimi','米兰理工大学','Politecnico di Milano','意大利','Milan',123,'https://www.polimi.it',82,3.2,6.5,[3000,5000],'2年','MSc in Computer Science','2025-03-15',['GPA 3.2+','IELTS 6.5+']],
+  ['sapienza','罗马大学','Sapienza University of Rome','意大利','Rome',171,'https://www.uniroma1.it',78,3.0,6.5,[2000,4000],'2年','MSc in Computer Science','2025-03-15',['GPA 3.0+','IELTS 6.5+']],
+  ['bologna','博洛尼亚大学','University of Bologna','意大利','Bologna',167,'https://www.unibo.it',79,3.0,6.5,[2000,4000],'2年','MSc in Computer Science','2025-03-15',['GPA 3.0+','IELTS 6.5+']],
+  ['upc','加泰罗尼亚理工大学','UPC BarcelonaTech','西班牙','Barcelona',200,'https://www.upc.edu',78,3.0,6.5,[3000,5000],'2年','MSc in Computer Science','2025-03-15',['GPA 3.0+','IELTS 6.5+']],
+  ['uam','马德里自治大学','Autonomous University of Madrid','西班牙','Madrid',200,'https://www.uam.es',76,3.0,6.5,[3000,5000],'1年','MSc in Computer Science','2025-03-15',['GPA 3.0+','IELTS 6.5+']],
+  ['ub','巴塞罗那大学','University of Barcelona','西班牙','Barcelona',164,'https://www.ub.edu',78,3.0,6.5,[3000,5000],'1年','MSc in Computer Science','2025-03-15',['GPA 3.0+','IELTS 6.5+']],
+  ['tcd','都柏林圣三一学院','Trinity College Dublin','爱尔兰','Dublin',81,'https://www.tcd.ie',85,3.3,6.5,[18000,25000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['ucd','都柏林大学','University College Dublin','爱尔兰','Dublin',171,'https://www.ucd.ie',81,3.1,6.5,[17000,24000],'1年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['kuleuven','鲁汶大学','KU Leuven','比利时','Leuven',50,'https://www.kuleuven.be',86,3.4,6.5,[3000,6000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.4+','IELTS 6.5+']],
+  ['ghent','根特大学','Ghent University','比利时','Ghent',143,'https://www.ugent.be',80,3.1,6.5,[3000,6000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['tuwien','维也纳工业大学','TU Wien','奥地利','Vienna',200,'https://www.tuwien.ac.at',79,3.1,6.5,[1000,3000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['univie','维也纳大学','University of Vienna','奥地利','Vienna',200,'https://www.univie.ac.at',77,3.0,6.5,[1000,3000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['tokyo','东京大学','University of Tokyo','日本','Tokyo',28,'https://www.u-tokyo.ac.jp',95,3.6,6.5,[4000,6000],'2年','MEng in Information Science','2025-01-15',['GPA 3.6+','IELTS 6.5+']],
+  ['kyoto','京都大学','Kyoto University','日本','Kyoto',46,'https://www.kyoto-u.ac.jp',90,3.5,6.5,[4000,6000],'2年','MEng in Informatics','2025-01-15',['GPA 3.5+','IELTS 6.5+']],
+  ['tohoku','东北大学（日本）','Tohoku University','日本','Sendai',113,'https://www.tohoku.ac.jp',84,3.3,6.5,[4000,6000],'2年','MEng in Information Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['waseda','早稻田大学','Waseda University','日本','Tokyo',199,'https://www.waseda.jp',82,3.2,6.5,[8000,12000],'2年','MEng in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['keio','庆应义塾大学','Keio University','日本','Tokyo',200,'https://www.keio.ac.jp',82,3.2,6.5,[8000,12000],'2年','MEng in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['snu','首尔国立大学','Seoul National University','韩国','Seoul',31,'https://www.snu.ac.kr',90,3.5,6.5,[5000,8000],'2年','MS in Computer Science','2025-01-15',['GPA 3.5+','IELTS 6.5+']],
+  ['kaist','韩国科学技术院','KAIST','韩国','Daejeon',42,'https://www.kaist.ac.kr',89,3.5,6.5,[5000,8000],'2年','MS in Computer Science','2025-01-15',['GPA 3.5+','IELTS 6.5+']],
+  ['yonsei','延世大学','Yonsei University','韩国','Seoul',76,'https://www.yonsei.ac.kr',85,3.3,6.5,[6000,9000],'2年','MS in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['korea','高丽大学','Korea University','韩国','Seoul',79,'https://www.korea.ac.kr',84,3.3,6.5,[6000,9000],'2年','MS in Computer Science','2025-01-15',['GPA 3.3+','IELTS 6.5+']],
+  ['tsinghua','清华大学','Tsinghua University','中国','北京',25,'https://www.tsinghua.edu.cn',98,3.7,6.5,[5000,8000],'2年','计算机科学与技术硕士','2025-01-15',['GPA 3.7+','IELTS 6.5+']],
+  ['pku','北京大学','Peking University','中国','北京',17,'https://www.pku.edu.cn',97,3.7,6.5,[5000,8000],'2年','计算机科学与技术硕士','2025-01-15',['GPA 3.7+','IELTS 6.5+']],
+  ['fudan','复旦大学','Fudan University','中国','上海',50,'https://www.fudan.edu.cn',92,3.5,6.5,[5000,8000],'2年','计算机科学与技术硕士','2025-01-15',['GPA 3.5+','IELTS 6.5+']],
+  ['sjtu','上海交通大学','Shanghai Jiao Tong University','中国','上海',51,'https://www.sjtu.edu.cn',92,3.5,6.5,[5000,8000],'2年','计算机科学与技术硕士','2025-01-15',['GPA 3.5+','IELTS 6.5+']],
+  ['zju','浙江大学','Zhejiang University','中国','杭州',44,'https://www.zju.edu.cn',93,3.6,6.5,[5000,8000],'2年','计算机科学与技术硕士','2025-01-15',['GPA 3.6+','IELTS 6.5+']],
+  ['ustc','中国科学技术大学','USTC','中国','合肥',93,'https://www.ustc.edu.cn',91,3.5,6.5,[5000,8000],'2年','计算机科学与技术硕士','2025-01-15',['GPA 3.5+','IELTS 6.5+']],
+  ['nju','南京大学','Nanjing University','中国','南京',141,'https://www.nju.edu.cn',88,3.4,6.5,[5000,8000],'2年','计算机科学与技术硕士','2025-01-15',['GPA 3.4+','IELTS 6.5+']],
+  ['hku2','澳门大学','University of Macau','澳门','Macau',200,'https://www.um.edu.mo',78,3.0,6.5,[8000,12000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['must','澳门科技大学','Macau University of Science and Technology','澳门','Macau',200,'https://www.must.edu.mo',72,2.8,6.0,[9000,13000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.8+','IELTS 6.0+']],
+  ['malaya','马来亚大学','Universiti Malaya','马来西亚','Kuala Lumpur',65,'https://www.um.edu.my',80,3.1,6.0,[3000,6000],'2年','Master of Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.0+']],
+  ['upm','博特拉大学','Universiti Putra Malaysia','马来西亚','Serdang',158,'https://www.upm.edu.my',74,2.9,6.0,[3000,5000],'2年','Master of Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.0+']],
+  ['mahidol','玛希隆大学','Mahidol University','泰国','Bangkok',200,'https://www.mahidol.ac.th',72,2.8,6.0,[4000,7000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.8+','IELTS 6.0+']],
+  ['chula','朱拉隆功大学','Chulalongkorn University','泰国','Bangkok',200,'https://www.chula.ac.th',74,2.9,6.0,[4000,7000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.0+']],
+  ['itu','伊斯坦布尔理工大学','Istanbul Technical University','土耳其','Istanbul',200,'https://www.itu.edu.tr',70,2.8,6.0,[1000,3000],'2年','MSc in Computer Engineering','2025-01-15',['GPA 2.8+','IELTS 6.0+']],
+  ['kaust','阿卜杜拉国王科技大学','KAUST','沙特阿拉伯','Thuwal',200,'https://www.kaust.edu.sa',82,3.2,6.5,[0,0],'2年','MS in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['qu','卡塔尔大学','Qatar University','卡塔尔','Doha',200,'https://www.qu.edu.qa',70,2.8,6.0,[8000,12000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.8+','IELTS 6.0+']],
+  ['uct','开普敦大学','University of Cape Town','南非','Cape Town',150,'https://www.uct.ac.za',76,3.0,6.5,[5000,9000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['wits','金山大学','University of the Witwatersrand','南非','Johannesburg',200,'https://www.wits.ac.za',72,2.9,6.5,[4000,8000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.5+']],
+  ['usp','圣保罗大学','University of São Paulo','巴西','São Paulo',100,'https://www.usp.br',78,3.0,6.5,[0,2000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['unicamp','坎皮纳斯州立大学','Unicamp','巴西','Campinas',200,'https://www.unicamp.br',74,2.9,6.5,[0,2000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.5+']],
+  ['uba','布宜诺斯艾利斯大学','University of Buenos Aires','阿根廷','Buenos Aires',95,'https://www.uba.ar',74,2.9,6.0,[0,1000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.0+']],
+  ['unam','墨西哥国立自治大学','UNAM','墨西哥','Mexico City',105,'https://www.unam.mx',74,2.9,6.0,[1000,3000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.0+']],
+  ['itesm','蒙特雷科技大学','Tecnológico de Monterrey','墨西哥','Monterrey',184,'https://www.tec.mx',76,3.0,6.5,[10000,15000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['losandes','洛斯安第斯大学','Universidad de los Andes','哥伦比亚','Bogotá',200,'https://www.uniandes.edu.co',72,2.9,6.0,[8000,12000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.0+']],
+  ['uchile','智利大学','Universidad de Chile','智利','Santiago',200,'https://www.uchile.cl',72,2.9,6.0,[3000,6000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.0+']],
+  ['pucchile','智利天主教大学','Pontificia Universidad Católica de Chile','智利','Santiago',135,'https://www.uc.cl',74,2.9,6.0,[5000,8000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.0+']],
+  ['hse','高等经济大学','HSE University','俄罗斯','Moscow',200,'https://www.hse.ru',72,2.9,6.0,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.0+']],
+  ['msu','莫斯科国立大学','Lomonosov Moscow State University','俄罗斯','Moscow',87,'https://www.msu.ru',76,3.0,6.0,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.0+','IELTS 6.0+']],
+  ['warsaw','华沙大学','University of Warsaw','波兰','Warsaw',200,'https://www.uw.edu.pl',72,2.9,6.0,[2000,4000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.0+']],
+  ['ctu','捷克理工大学','Czech Technical University','捷克','Prague',200,'https://www.cvut.cz',70,2.8,6.0,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.8+','IELTS 6.0+']],
+  ['charles','查理大学','Charles University','捷克','Prague',200,'https://www.cuni.cz',72,2.9,6.0,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.0+']],
+  ['bme','布达佩斯技术与经济大学','BME','匈牙利','Budapest',200,'https://www.bme.hu',70,2.8,6.0,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.8+','IELTS 6.0+']],
+  ['lisbon','里斯本大学','University of Lisbon','葡萄牙','Lisbon',200,'https://www.ulisboa.pt',72,2.9,6.0,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.9+','IELTS 6.0+']],
+  ['porto','波尔图大学','University of Porto','葡萄牙','Porto',200,'https://www.up.pt',71,2.8,6.0,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.8+','IELTS 6.0+']],
+  ['ucy','塞浦路斯大学','University of Cyprus','塞浦路斯','Nicosia',200,'https://www.ucy.ac.cy',68,2.7,6.0,[4000,6000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.7+','IELTS 6.0+']],
+  ['uoa','雅典国立科技大学','NTUA','希腊','Athens',200,'https://www.ntua.gr',68,2.7,6.0,[1000,3000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.7+','IELTS 6.0+']],
+  ['tartu','塔尔图大学','University of Tartu','爱沙尼亚','Tartu',200,'https://www.ut.ee',70,2.8,6.0,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.8+','IELTS 6.0+']],
+  ['vilnius','维尔纽斯大学','Vilnius University','立陶宛','Vilnius',200,'https://www.vu.lt',68,2.7,6.0,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.7+','IELTS 6.0+']],
+  ['lu','拉脱维亚大学','University of Latvia','拉脱维亚','Riga',200,'https://www.lu.lv',66,2.7,6.0,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.7+','IELTS 6.0+']],
+  ['taltech','塔林理工大学','TalTech','爱沙尼亚','Tallinn',200,'https://www.taltech.ee',68,2.7,6.0,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.7+','IELTS 6.0+']],
+  ['nus2','曼谷大学','Bangkok University','泰国','Bangkok',200,'https://www.bu.ac.th',64,2.6,5.5,[3000,5000],'2年','MSc in IT','2025-01-15',['GPA 2.6+','IELTS 5.5+']],
+  ['binus','建国大学','BINUS University','印度尼西亚','Jakarta',200,'https://www.binus.ac.id',64,2.6,5.5,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.6+','IELTS 5.5+']],
+  ['ui','印度尼西亚大学','Universitas Indonesia','印度尼西亚','Depok',200,'https://www.ui.ac.id',68,2.7,5.5,[2000,4000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.7+','IELTS 5.5+']],
+  ['ugm','加札马达大学','Universitas Gadjah Mada','印度尼西亚','Yogyakarta',200,'https://www.ugm.ac.id',66,2.7,5.5,[2000,4000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.7+','IELTS 5.5+']],
+  ['dlsu','德拉萨大学','De La Salle University','菲律宾','Manila',200,'https://www.dlsu.edu.ph',66,2.7,5.5,[3000,5000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.7+','IELTS 5.5+']],
+  ['ustph','圣托马斯大学','University of Santo Tomas','菲律宾','Manila',200,'https://www.ust.edu.ph',64,2.6,5.5,[2000,4000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.6+','IELTS 5.5+']],
+  ['hcmut','胡志明市理工大学','HCMUT','越南','Ho Chi Minh City',200,'https://www.hcmut.edu.vn',64,2.6,5.5,[1000,3000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.6+','IELTS 5.5+']],
+  ['iitb','印度理工学院孟买分校','IIT Bombay','印度','Mumbai',149,'https://www.iitb.ac.in',80,3.1,6.5,[1000,3000],'2年','MTech in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['iitd','印度理工学院德里分校','IIT Delhi','印度','New Delhi',197,'https://www.iitd.ac.in',79,3.1,6.5,[1000,3000],'2年','MTech in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['iisc','印度科学理工学院','IISc Bangalore','印度','Bangalore',200,'https://www.iisc.ac.in',81,3.2,6.5,[1000,3000],'2年','MTech in Computer Science','2025-01-15',['GPA 3.2+','IELTS 6.5+']],
+  ['tumasia','新加坡理工大学','Singapore Institute of Technology','新加坡','Singapore',200,'https://www.singaporetech.edu.sg',74,2.9,6.0,[15000,20000],'1年','MSc in Engineering','2025-01-15',['GPA 2.9+','IELTS 6.0+']],
+  ['xjtlu','西交利物浦大学','XJTLU','中国','苏州',200,'https://www.xjtlu.edu.cn',72,2.8,6.0,[12000,15000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.8+','IELTS 6.0+']],
+  ['nottingham_nbo','宁波诺丁汉大学','UNNC','中国','宁波',200,'https://www.nottingham.edu.cn',72,2.8,6.0,[12000,15000],'2年','MSc in Computer Science','2025-01-15',['GPA 2.8+','IELTS 6.0+']],
+  ['cuhksz','香港中文大学（深圳）','CUHK-Shenzhen','中国','深圳',200,'https://www.cuhk.edu.cn',80,3.1,6.5,[10000,14000],'2年','MSc in Computer Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']],
+  ['dku','昆山杜克大学','Duke Kunshan University','中国','昆山',200,'https://www.dukekunshan.edu.cn',78,3.0,6.5,[15000,18000],'2年','MSc in Data Science','2025-01-15',['GPA 3.0+','IELTS 6.5+']],
+  ['nyush','上海纽约大学','NYU Shanghai','中国','上海',200,'https://www.shanghai.nyu.edu',80,3.1,6.5,[20000,25000],'2年','MSc in Data Science','2025-01-15',['GPA 3.1+','IELTS 6.5+']]
+];
+EXTRA_UNIVERSITIES.forEach(a=>{
+  UNIVERSITIES.push({id:a[0],name:a[1],nameEn:a[2],country:a[3],city:a[4],qsRank:a[5],website:a[6],threshold:a[7],avgGpaRequired:a[8],avgIeltsRequired:a[9],tuitionRange:a[10],duration:a[11],programs:[{name:a[12],deadline:a[13],requirements:a[14]}]});
+});
+
+/* ================= AI 大脑 ================= */
+const AIEngine={
+  lastError:'',
+  _errText(e){
+    if(e&&e.name==='AbortError') return '请求超时，接口无响应';
+    const m=(e&&e.message)||'';
+    if(/failed to fetch|networkerror|load failed/i.test(m)) return '网络无法连通该地址（地址错误、跨域被拦或对方服务不可达）';
+    return m||'未知错误';
+  },
+  async test(){
+    const d=Settings.data;
+    this.lastError='';
+    if(!d.aiEndpoint){ this.lastError='未填写 API 地址'; return false; }
+    if(!d.aiKey){ this.lastError='未填写 API Key'; return false; }
+    try{
+      const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),12000);
+      const res=await fetch(d.aiEndpoint,{method:'POST',signal:ctl.signal,headers:{'Content-Type':'application/json','Authorization':'Bearer '+d.aiKey},body:JSON.stringify({model:d.aiModel,messages:[{role:'user',content:'ping'}],max_tokens:5})});
+      clearTimeout(to);
+      if(!res.ok){
+        let detail=''; try{ const j=await res.json(); detail=(j.error&&(j.error.message||j.error.code))||''; }catch(e2){}
+        this.lastError='HTTP '+res.status+(detail?'：'+detail:(res.status===401?'：Key 无效或已过期':res.status===402?'：账户余额不足':res.status===404?'：接口地址不存在':res.status===429?'：请求过于频繁':''));
+        return false;
+      }
+      return true;
+    }catch(e){ this.lastError=this._errText(e); return false; }
+  },
+  buildPrompts(profile,results){
+    const levelMap={c9_985:'C9/985','211':'211',double_first:'双一流',regular:'普通本科',other:'其他'};
+    const catMap={safe:'保底',match:'匹配',reach:'冲刺'};
+    const counts={safe:0,match:0,reach:0}; results.forEach(r=>counts[r.category]++);
+    const schoolList=results.slice(0,12).map(r=>`${r.university.name}（${r.university.country}，QS#${r.university.qsRank}，概率${r.probability}%，${catMap[r.category]}档）`).join('；');
+    const system='你是一位资深留学申请顾问，拥有 15 年以上美英加澳新港欧名校申请指导经验，擅长基于学生硬件条件与软背景做精准的选校定位分析。你的分析务实、具体、可执行，不说空话套话。';
+    const user=`请为以下学生做选校匹配分析。
+
+【学生背景】
+- 本科院校层次：${levelMap[profile.universityLevel]||profile.universityLevel}
+- 本科专业：${profile.major}，目标学位：${profile.degree}
+- GPA：${profile.gpa}/4.0
+- 雅思：总分 ${profile.ielts}${profile.ieltsListening?`（听${profile.ieltsListening} 读${profile.ieltsReading} 写${profile.ieltsWriting} 说${profile.ieltsSpeaking}）`:''}
+- GRE：${profile.gre||'无'}
+- 科研经历：${profile.research}；论文发表：${profile.paper}；实习经历：${profile.internship}；社会活动：${profile.social}；获奖：${profile.awards.length?profile.awards.join('、'):'无'}
+
+【系统匹配结果】共 ${results.length} 所院校入选：保底 ${counts.safe} 所、匹配 ${counts.match} 所、冲刺 ${counts.reach} 所。
+院校明细（按概率排序）：${schoolList}
+
+请输出四部分内容（用【】标注每部分小标题）：
+【背景评价】该生背景的优劣势各是什么；
+【三档分析】对保底/匹配/冲刺三档分布的解读，结构是否合理；
+【冲刺推荐】从冲刺档中挑 1-2 所最值得投入的院校并说明理由；
+【提升建议】2-3 条最关键、可执行的背景提升建议。
+总字数控制在 350-450 字，直接输出正文，不要额外标题和客套话。`;
+    return {system,user};
+  },
+  async remoteReport(profile,results,onChunk){
+    const d=Settings.data;
+    this.lastError='';
+    if(!d.aiEnabled){ this.lastError='未启用 AI 大模型分析'; return null; }
+    if(!d.aiKey){ this.lastError='未填写 API Key'; return null; }
+    const {system,user}=this.buildPrompts(profile,results);
+    const body={model:d.aiModel,messages:[{role:'system',content:system},{role:'user',content:user}],max_tokens:900,temperature:0.7,stream:!!d.aiStream};
+    try{
+      const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),d.aiStream?60000:25000);
+      const res=await fetch(d.aiEndpoint,{method:'POST',signal:ctl.signal,headers:{'Content-Type':'application/json','Authorization':'Bearer '+d.aiKey},body:JSON.stringify(body)});
+      if(!res.ok){
+        clearTimeout(to);
+        let detail=''; try{ const j=await res.json(); detail=(j.error&&(j.error.message||j.error.code))||''; }catch(e2){}
+        this.lastError='HTTP '+res.status+(detail?'：'+detail:(res.status===401?'：Key 无效或已过期':res.status===402?'：账户余额不足':res.status===404?'：接口地址不存在':res.status===429?'：请求过于频繁':''));
+        return null;
+      }
+      if(d.aiStream&&res.body){
+        // SSE 流式解析：逐行读取 data: {...}，提取 delta.content 累积
+        const reader=res.body.getReader();
+        const decoder=new TextDecoder();
+        let buf='',full='';
+        while(true){
+          const {done,value}=await reader.read();
+          if(done) break;
+          buf+=decoder.decode(value,{stream:true});
+          const lines=buf.split('\n');
+          buf=lines.pop();
+          for(const line of lines){
+            const t=line.trim();
+            if(!t.startsWith('data:')) continue;
+            const data=t.slice(5).trim();
+            if(data==='[DONE]') continue;
+            try{
+              const json=JSON.parse(data);
+              const delta=json.choices&&json.choices[0]&&json.choices[0].delta&&json.choices[0].delta.content;
+              if(delta){ full+=delta; if(onChunk) onChunk(full,delta); }
+            }catch(e){ /* 忽略不完整的分片 */ }
+          }
+        }
+        clearTimeout(to);
+        return full.trim()||null;
+      }else{
+        const json=await res.json();
+        clearTimeout(to);
+        const text=(json.choices&&json.choices[0]&&json.choices[0].message&&json.choices[0].message.content||'').trim();
+        if(text&&onChunk) onChunk(text,text);
+        return text||null;
+      }
+    }catch(e){ this.lastError=this._errText(e); return null; }
+  },
+  localReport(profile,results,counts){
+    const gpa=parseFloat(profile.gpa)||0, ielts=parseFloat(profile.ielts)||0;
+    const strengths=[],weakness=[];
+    if(gpa>=3.7)strengths.push(`GPA ${gpa} 表现优异`);else if(gpa>=3.3)strengths.push(`GPA ${gpa} 达到主流院校要求`);else weakness.push(`GPA ${gpa} 偏低，是主要短板`);
+    if(ielts>=7.5)strengths.push(`雅思 ${ielts} 具有很强的竞争力`);else if(ielts>=6.5)strengths.push(`雅思 ${ielts} 满足大部分院校门槛`);else weakness.push(`雅思 ${ielts} 未达到多数院校 6.5 的门槛`);
+    if(profile.research!=='无')strengths.push(`拥有${profile.research}科研经历`);else weakness.push('缺少科研经历');
+    if(profile.paper!=='无')strengths.push(`有${profile.paper}发表`);
+    if(profile.internship!=='无')strengths.push(`具备${profile.internship}实习经历`);
+    const top3=results.slice(0,3).map(r=>`${r.university.name}（${r.probability}%）`).join('、');
+    let strategy;
+    if(counts.safe>=3)strategy='你的选校结构稳健，保底校充足，可适当增加 1-2 所冲刺校冲击更高平台。';
+    else if(counts.reach>counts.safe+counts.match)strategy='你的名单偏激进，冲刺校占比过高，建议补充 2-3 所匹配校与保底校分散风险。';
+    else strategy='你的三档分布均衡，建议按「2 冲刺 + 4 匹配 + 2 保底」的节奏投递申请。';
+    return `【背景评估】${strengths.length?'优势：'+strengths.join('；')+'。':''}${weakness.length?'待提升：'+weakness.join('；')+'。':''}\n【匹配概览】本次共匹配 ${results.length} 所院校：保底 ${counts.safe} 所、匹配 ${counts.match} 所、冲刺 ${counts.reach} 所。概率最高的三所为：${top3}。\n【申请策略】${strategy}`;
+  }
+};
+</script>
+<script>
+/* ================= 主应用 ================= */
+const App={
+  page:'home',
+  state:{
+    form:{universityLevel:'',major:'',degree:'硕士',gpa:'',ielts:'',ieltsListening:'',ieltsReading:'',ieltsWriting:'',ieltsSpeaking:'',gre:'',research:'无',paper:'无',internship:'无',social:'无',awards:[]},
+    preferences:{countries:[],tuitionMax:80000,rankMin:1,rankMax:250,duration:'不限'},
+    results:[],aiReport:'',aiSource:'',
+    filters:{countries:[],categories:['safe','match','reach'],rankMin:1,rankMax:250,duration:''},
+    sortBy:'probability',expandedCards:new Set(),
+  },
+  majors:['计算机科学','数据科学','电子工程','机械工程','金融','经济学','商业分析','市场营销','数学','统计学','物理学','化学','生物学','心理学','教育学','传媒学','法学','建筑学','其他'],
+  countries:['美国','英国','加拿大','澳大利亚','新加坡','香港','中国','日本','韩国','瑞士','德国','法国','荷兰','瑞典','芬兰','丹麦','挪威','意大利','西班牙','爱尔兰','比利时','奥地利','新西兰','马来西亚','俄罗斯','澳门','泰国','印度','印度尼西亚','菲律宾','越南','土耳其','沙特阿拉伯','卡塔尔','南非','巴西','阿根廷','智利','哥伦比亚','墨西哥','波兰','捷克','匈牙利','希腊','葡萄牙','爱沙尼亚','拉脱维亚','立陶宛','塞浦路斯'],
+
+  /* ---------- 路由 ---------- */
+  go(page,sub){
+    if(page==='results'&&this.state.results.length===0){ toast(Settings.data.lang==='en'?'Run an assessment first':'请先完成一次智能评估'); page='assess'; }
+    this.page=page;
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    $('page-'+page).classList.add('active');
+    document.querySelectorAll('.nav-link').forEach(n=>n.classList.toggle('active',n.dataset.nav===page));
+    if(page==='settings') Settings.show(sub||Settings.tab);
+    window.scrollTo({top:0,behavior:'smooth'});
+  },
+  enterApp(){
+    const user=Auth.currentUser(); if(!user) return;
+    $('authView').classList.remove('active');
+    $('appShell').classList.add('active');
+    $('accountName').textContent=user.username;
+    $('accountAvatar').textContent=user.username[0].toUpperCase();
+    $('menuName').textContent=user.username;
+    $('menuEmail').textContent=user.email;
+    $('toastWrap').innerHTML='';
+    this.go('home');
+    News.init();
+  },
+  toggleAccountMenu(e){ e.stopPropagation(); $('accountMenu').classList.toggle('open'); },
+  closeAccountMenu(){ $('accountMenu').classList.remove('open'); },
+  openModal(id){ $(id).classList.add('open'); },
+  closeModal(id){ $(id).classList.remove('open'); },
+
+  /* ---------- 咨询预约 / 课程报名 ---------- */
+  openConsult(topic){
+    this._consultTopic=topic||'咨询';
+    $('consultTitle').textContent='预约咨询 · '+this._consultTopic;
+    $('consultDesc').textContent='留下你的联系方式，顾问将在 24 小时内与你联系（咨询类型：'+this._consultTopic+'）。';
+    $('consultName').value=''; $('consultContact').value=''; $('consultMsg').value='';
+    this.openModal('consultModal');
+  },
+  enroll(course){
+    this._consultTopic='课程报名：'+course;
+    $('consultTitle').textContent='课程报名';
+    $('consultDesc').textContent='你正在报名「'+course+'」，提交后顾问将与你确认课程安排与付款方式。';
+    $('consultName').value=''; $('consultContact').value=''; $('consultMsg').value='';
+    this.openModal('consultModal');
+  },
+  submitConsult(){
+    const name=$('consultName').value.trim(), contact=$('consultContact').value.trim();
+    if(!name) return toast('请填写你的称呼','error');
+    if(!contact) return toast('请填写联系方式','error');
+    const list=JSON.parse(localStorage.getItem('admitpath-consults')||'[]');
+    list.push({topic:this._consultTopic,name,contact,msg:$('consultMsg').value.trim(),at:Date.now(),user:(Auth.currentUser()||{}).username});
+    localStorage.setItem('admitpath-consults',JSON.stringify(list));
+    this.closeModal('consultModal');
+    toast('提交成功！顾问将在 24 小时内联系你','success');
+  },
+
+  /* ---------- 评估表单（单页） ---------- */
+  chip(name,val,label,type,checked,idx){
+    const id=name+'_'+(idx!==undefined?idx:encodeURIComponent(String(val)));
+    return `<div class="${type}-chip"><input type="${type==='radio'?'radio':'checkbox'}" name="${name}" value="${val}" id="${id}" ${checked?'checked':''} onchange="App.onChip('${name}','${val}','${type}',this.checked)"><label for="${id}">${label}</label></div>`;
+  },
+  renderForm(){
+    const f=this.state.form,p=this.state.preferences;
+    const levelOpts=[['c9_985','C9 / 985'],['211','211'],['double_first','双一流'],['regular','普通本科'],['other','其他']];
+    const degreeOpts=['硕士','博士','本科'];
+    const expOpts=['无','1段','2段','3段及以上'];
+    const paperOpts=['无','会议论文','期刊论文','SCI/SSCI'];
+    const socialOpts=['无','少量','丰富'];
+    const awardOpts=['国家级','省级','校级'];
+    const durOpts=['不限','1年','1.5年','2年'];
+    $('assessForm').innerHTML=`
+    <div class="form-section">
+      <div class="form-section-head"><span class="step-num">1</span><h3>基本信息</h3><span>教育背景</span></div>
+      <div class="form-group"><label class="form-label">本科院校层次<span class="req">*</span></label>
+        <div class="radio-group">${levelOpts.map((o,i)=>this.chip('universityLevel',o[0],o[1],'radio',f.universityLevel===o[0],i)).join('')}</div>
+        <div class="error-text" id="err_universityLevel">请选择本科院校层次</div></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">本科专业<span class="req">*</span></label>
+          <select class="form-select" id="majorSelect"><option value="">请选择专业</option>${this.majors.map(m=>`<option ${f.major===m?'selected':''}>${m}</option>`).join('')}</select>
+          <div class="error-text" id="err_major">请选择本科专业</div></div>
+        <div class="form-group"><label class="form-label">目标学位</label>
+          <div class="radio-group">${degreeOpts.map((o,i)=>this.chip('degree',o,o,'radio',f.degree===o,i)).join('')}</div></div>
+      </div></div>
+    <div class="form-section">
+      <div class="form-section-head"><span class="step-num">2</span><h3>学术成绩</h3><span>GPA 与语言</span></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">GPA（4.0 制）<span class="req">*</span></label>
+          <input type="number" class="form-input" id="gpaInput" step="0.01" min="0" max="4" placeholder="如：3.5" value="${f.gpa}">
+          <div class="error-text" id="err_gpa">请输入 0-4.0 之间的 GPA</div></div>
+        <div class="form-group"><label class="form-label">雅思总分<span class="req">*</span></label>
+          <input type="number" class="form-input" id="ieltsInput" step="0.5" min="0" max="9" placeholder="如：7.0" value="${f.ielts}">
+          <div class="error-text" id="err_ielts">请输入 0-9 之间的雅思成绩</div></div>
+      </div>
+      <div class="form-group"><label class="form-label">雅思小分（选填）</label>
+        <div class="form-row" style="grid-template-columns:repeat(4,1fr);">
+          <input type="number" class="form-input" id="ieltsListening" step="0.5" min="0" max="9" placeholder="听" value="${f.ieltsListening}">
+          <input type="number" class="form-input" id="ieltsReading" step="0.5" min="0" max="9" placeholder="读" value="${f.ieltsReading}">
+          <input type="number" class="form-input" id="ieltsWriting" step="0.5" min="0" max="9" placeholder="写" value="${f.ieltsWriting}">
+          <input type="number" class="form-input" id="ieltsSpeaking" step="0.5" min="0" max="9" placeholder="说" value="${f.ieltsSpeaking}">
+        </div></div>
+      <div class="form-group" style="margin-bottom:0;"><label class="form-label">GRE（选填）</label>
+        <input type="number" class="form-input" id="greInput" min="260" max="340" placeholder="如：325" value="${f.gre}"></div></div>
+    <div class="form-section">
+      <div class="form-section-head"><span class="step-num">3</span><h3>背景经历</h3><span>科研 / 实习 / 奖项</span></div>
+      <div class="form-group"><label class="form-label">科研经历</label>
+        <div class="radio-group">${expOpts.map((o,i)=>this.chip('research',o,o,'radio',f.research===o,i)).join('')}</div></div>
+      <div class="form-group"><label class="form-label">论文发表</label>
+        <div class="radio-group">${paperOpts.map((o,i)=>this.chip('paper',o,o,'radio',f.paper===o,i)).join('')}</div></div>
+      <div class="form-group"><label class="form-label">实习经历</label>
+        <div class="radio-group">${expOpts.map((o,i)=>this.chip('internship',o,o,'radio',f.internship===o,i)).join('')}</div></div>
+      <div class="form-group"><label class="form-label">社会活动</label>
+        <div class="radio-group">${socialOpts.map((o,i)=>this.chip('social',o,o,'radio',f.social===o,i)).join('')}</div></div>
+      <div class="form-group" style="margin-bottom:0;"><label class="form-label">获奖情况（可多选）</label>
+        <div class="checkbox-group">${awardOpts.map((o,i)=>this.chip('awards',o,o,'checkbox',f.awards.includes(o),i)).join('')}</div></div></div>
+    <div class="form-section">
+      <div class="form-section-head"><span class="step-num">4</span><h3>申请偏好</h3><span>地区 / 预算 / 排名</span></div>
+      <div class="form-group"><label class="form-label">目标国家 / 地区（可多选，不选则不限）</label>
+        <div class="checkbox-group">${this.countries.map((o,i)=>this.chip('countries',o,o,'checkbox',p.countries.includes(o),i)).join('')}</div></div>
+      <div class="form-group"><label class="form-label">年学费预算上限</label>
+        <div class="range-row"><input type="range" id="tuitionRange" min="0" max="80000" step="5000" value="${p.tuitionMax}" oninput="$('tuitionValue').textContent='$'+Number(this.value).toLocaleString()"><span id="tuitionValue" style="color:var(--accent);font-weight:600;font-size:.85rem;min-width:64px;text-align:right;">$${p.tuitionMax.toLocaleString()}</span></div></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">QS 排名范围</label>
+          <div style="display:flex;gap:.5rem;align-items:center;">
+            <input type="number" class="form-input" id="rankMin" min="1" max="200" value="${p.rankMin}">
+            <span style="color:var(--text-tertiary);">—</span>
+            <input type="number" class="form-input" id="rankMax" min="1" max="250" value="${p.rankMax}">
+          </div></div>
+        <div class="form-group"><label class="form-label">学制偏好</label>
+          <div class="radio-group">${durOpts.map((o,i)=>this.chip('duration',o,o,'radio',p.duration===o,i)).join('')}</div></div>
+      </div></div>`;
+  },
+  onChip(name,val,type,checked){
+    if(name==='countries'){ const arr=this.state.preferences.countries; const i=arr.indexOf(val); if(checked&&i<0)arr.push(val); if(!checked&&i>=0)arr.splice(i,1); }
+    else if(name==='awards'){ const arr=this.state.form.awards; const i=arr.indexOf(val); if(checked&&i<0)arr.push(val); if(!checked&&i>=0)arr.splice(i,1); }
+    else if(name==='duration'){ this.state.preferences.duration=val; }
+    else this.state.form[name]=val;
+  },
+  collectInputs(){
+    const f=this.state.form,p=this.state.preferences;
+    f.major=$('majorSelect').value; f.gpa=$('gpaInput').value; f.ielts=$('ieltsInput').value;
+    f.ieltsListening=$('ieltsListening').value; f.ieltsReading=$('ieltsReading').value;
+    f.ieltsWriting=$('ieltsWriting').value; f.ieltsSpeaking=$('ieltsSpeaking').value; f.gre=$('greInput').value;
+    p.tuitionMax=parseInt($('tuitionRange').value); p.rankMin=parseInt($('rankMin').value)||1; p.rankMax=parseInt($('rankMax').value)||250;
+  },
+  validate(){
+    this.collectInputs();
+    const f=this.state.form; let ok=true;
+    const mark=(id,cond)=>{ $(id).classList.toggle('show',!cond); if(!cond)ok=false; };
+    mark('err_universityLevel',!!f.universityLevel);
+    mark('err_major',!!f.major);
+    const gpa=parseFloat(f.gpa); mark('err_gpa',!isNaN(gpa)&&gpa>0&&gpa<=4);
+    const ielts=parseFloat(f.ielts); mark('err_ielts',!isNaN(ielts)&&ielts>0&&ielts<=9);
+    if(!ok){ toast('请完善带 * 的必填项','error'); const first=document.querySelector('.error-text.show'); if(first)first.scrollIntoView({behavior:'smooth',block:'center'}); }
+    return ok;
+  },
+  resetForm(){
+    this.state.form={universityLevel:'',major:'',degree:'硕士',gpa:'',ielts:'',ieltsListening:'',ieltsReading:'',ieltsWriting:'',ieltsSpeaking:'',gre:'',research:'无',paper:'无',internship:'无',social:'无',awards:[]};
+    this.state.preferences={countries:[],tuitionMax:80000,rankMin:1,rankMax:250,duration:'不限'};
+    this.renderForm();
+    toast('表单已清空');
+  },
+
+  /* ---------- 提交 + AI 分析 ---------- */
+  async submit(){
+    if(!this.validate()) return;
+    localStorage.setItem('admitpath-form',JSON.stringify(this.state.form));
+    localStorage.setItem('admitpath-prefs',JSON.stringify(this.state.preferences));
+    this.go('loading');
+    document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
+    const useRemote=Settings.data.aiEnabled&&Settings.data.aiKey;
+    const steps=[
+      useRemote?'正在接入 DeepSeek AI 大脑…':'正在启动内置智能引擎…',
+      '解析你的学术背景与经历…',
+      '比对 250+ 所院校录取数据…',
+      '计算录取概率并分档…',
+      '生成智能分析报告…',
+    ];
+    $('aiSteps').innerHTML=steps.map((s,i)=>`<div class="ai-step" id="aiStep${i}"><span class="dot"></span><span>${s}</span></div>`).join('');
+    $('loadingSubtext').textContent=steps[0];
+    const bar=$('loadingBar'); bar.style.width='0%';
+    // 匹配计算不依赖 AI，先完成
+    const resultsPromise=this.computeResults();
+    for(let i=0;i<steps.length-1;i++){
+      const el=$('aiStep'+i); el.classList.add('active');
+      $('loadingSubtext').textContent=steps[i];
+      bar.style.width=((i+1)/steps.length*92)+'%';
+      await new Promise(r=>setTimeout(r,550+Math.random()*350));
+      el.classList.remove('active'); el.classList.add('done'); el.querySelector('.dot').textContent='✓';
+    }
+    const results=await resultsPromise;
+    this.state.results=results;
+    const counts={safe:0,match:0,reach:0}; results.forEach(r=>counts[r.category]++);
+    this.state.filters={countries:[...this.state.preferences.countries],categories:['safe','match','reach'],rankMin:this.state.preferences.rankMin,rankMax:this.state.preferences.rankMax,duration:this.state.preferences.duration==='不限'?'':this.state.preferences.duration};
+    this.state.aiReport='';
+    this.state.aiSource=useRemote?'DeepSeek AI 大模型':'内置智能引擎';
+    bar.style.width='100%';
+    // 先进入结果页展示院校列表，AI 报告随后流式生成
+    $('navResults').style.display='';
+    this.renderResultsPage();
+    this.go('results');
+    const lastStep=$('aiStep'+(steps.length-1));
+    let report=null;
+    if(useRemote){
+      // 流式：onChunk 回调把累积文本实时写入报告区
+      report=await AIEngine.remoteReport(this.state.form,results,(full)=>{
+        this.state.aiReport=full;
+        $('aiReportBody').textContent=full;
+      });
+      if(report){ this.state.aiSource='DeepSeek AI 大模型'; }
+      else{
+        // AI 调用失败（无响应/超时/网络错误）→ 自动降级到内置引擎
+        report=AIEngine.localReport(this.state.form,results,counts);
+        this.state.aiSource='内置智能引擎（已降级）';
+        toast('AI 接口调用失败'+(AIEngine.lastError?'（'+AIEngine.lastError+'）':'')+'，已自动降级为内置引擎','error');
+      }
+    }else{
+      report=AIEngine.localReport(this.state.form,results,counts);
+      this.state.aiSource='内置智能引擎';
+    }
+    this.state.aiReport=report;
+    $('aiReportBody').textContent=report;
+    $('aiReportSource').textContent='· 由 '+this.state.aiSource+' 生成';
+    if(lastStep){ lastStep.classList.add('done'); lastStep.querySelector('.dot').textContent='✓'; }
+    this.saveHistory(counts);
+    if(Settings.data.notifyBrowser&&'Notification' in window&&Notification.permission==='granted') new Notification('AdmitPath',{body:'你的 AI 选校报告已生成'});
+  },
+
+  /* ---------- 匹配算法 ---------- */
+  getGpaScore(g){ g=parseFloat(g); if(g>=4)return 25; if(g>=3.8)return 22; if(g>=3.5)return 18; if(g>=3.2)return 14; if(g>=3)return 10; return 5; },
+  getIeltsScore(s){ s=parseFloat(s); if(s>=8)return 15; if(s>=7.5)return 13; if(s>=7)return 11; if(s>=6.5)return 8; if(s>=6)return 5; return 2; },
+  getUniversityScore(l){ return ({c9_985:10,'211':8,double_first:7,regular:5,other:3})[l]||3; },
+  getExperienceScore(){
+    const f=this.state.form;
+    const rm={'无':0,'1段':3,'2段':6,'3段及以上':9}, pm={'无':0,'会议论文':2,'期刊论文':4,'SCI/SSCI':6}, im={'无':0,'1段':2,'2段':4,'3段及以上':6}, sm={'无':0,'少量':1,'丰富':3}, am={'国家级':3,'省级':2,'校级':1};
+    let award=0; if(f.awards.length) award=Math.max(...f.awards.map(a=>am[a]||0));
+    return (rm[f.research]||0)+(pm[f.paper]||0)+(im[f.internship]||0)+(sm[f.social]||0)+award;
+  },
+  computeResults(){
+    const score=50+this.getGpaScore(this.state.form.gpa)+this.getIeltsScore(this.state.form.ielts)+this.getUniversityScore(this.state.form.universityLevel)+this.getExperienceScore();
+    const p=this.state.preferences;
+    return Promise.resolve(UNIVERSITIES.map(u=>{
+      const diff=score-u.threshold;
+      const prob=Math.round(Math.max(5,Math.min(99,100/(1+Math.exp(-0.12*diff)))));
+      const category=prob>=75?'safe':prob>=45?'match':'reach';
+      return {university:u,probability:prob,category,matchReason:this.getMatchReason(prob),suggestions:this.getSuggestions(prob,u)};
+    }).filter(r=>r.probability>=20)
+    .filter(r=>!p.countries.length||p.countries.includes(r.university.country))
+    .filter(r=>r.university.qsRank>=p.rankMin&&r.university.qsRank<=p.rankMax)
+    .filter(r=>r.university.tuitionRange[0]<=p.tuitionMax));
+    // 注意：学制偏好不做硬过滤——它只作为结果页筛选栏的初始值（见 submit 中 filters 初始化），
+    // 否则结果页切换学制时底层结果集里没有其他学制的学校，会永远显示 0 所（空状态）。
+  },
+  getMatchReason(prob){
+    if(prob>=80)return '你的学术背景非常优秀，远超该校录取门槛，录取概率极高。';
+    if(prob>=60)return '你的整体背景与该校要求较为匹配，具备较强的竞争力。';
+    if(prob>=40)return '你的背景基本符合该校要求，但部分指标略低于平均水平，建议提升相关经历。';
+    return '该校竞争激烈，你的背景与录取要求存在一定差距，建议作为冲刺目标并针对性提升。';
+  },
+  getSuggestions(prob,u){
+    const s=[]; const gpa=parseFloat(this.state.form.gpa)||0, ielts=parseFloat(this.state.form.ielts)||0;
+    if(gpa<u.avgGpaRequired)s.push(`建议将 GPA 提升至 ${u.avgGpaRequired} 以上`);
+    if(ielts<u.avgIeltsRequired)s.push(`建议将雅思提升至 ${u.avgIeltsRequired} 分`);
+    if(this.state.form.research==='无')s.push('建议增加科研项目经历');
+    if(this.state.form.paper==='无')s.push('建议尝试发表学术论文');
+    if(!s.length&&prob<60)s.push('建议提升综合背景，增加高质量实习或科研经历');
+    return s;
+  },
+
+  /* ---------- 结果页 ---------- */
+  catColor(c){ return {safe:'var(--safe)',match:'var(--match)',reach:'var(--reach)'}[c]; },
+  catLabel(c){ return {safe:'保底',match:'匹配',reach:'冲刺'}[c]; },
+  renderResultsPage(){
+    const counts={safe:0,match:0,reach:0},avgs={safe:0,match:0,reach:0};
+    this.state.results.forEach(r=>{counts[r.category]++;avgs[r.category]+=r.probability;});
+    Object.keys(avgs).forEach(k=>avgs[k]=counts[k]?Math.round(avgs[k]/counts[k]):0);
+    $('overviewStrip').innerHTML=['safe','match','reach'].map(c=>`
+      <div class="overview-card" style="border-top:3px solid ${this.catColor(c)};">
+        <div class="overview-num" style="color:${this.catColor(c)};">${counts[c]}</div>
+        <div><div class="overview-label">${this.catLabel(c)}校 (${c==='safe'?'Safe':c==='match'?'Match':'Reach'})</div>
+        <div class="overview-meta">平均概率 ${avgs[c]}%</div></div></div>`).join('');
+    $('resultsSummary').textContent=`基于 GPA ${this.state.form.gpa} · 雅思 ${this.state.form.ielts} · ${this.state.form.major} 的 AI 分析，共 ${this.state.results.length} 所院校入选`;
+    $('aiReportBody').textContent=this.state.aiReport||'AI 正在思考并生成分析报告…';
+    $('aiReportSource').textContent='· 由 '+this.state.aiSource+' 生成';
+    this.renderFilters();
+    this.renderList(true);
+  },
+  toggleFilterBar(){ $('filterBody').classList.toggle('open'); },
+  renderFilters(){
+    const fl=this.state.filters;
+    const durOpts=['1年','1.5年','2年'];
+    $('filterGrid').innerHTML=`
+      <div><h4>国家 / 地区</h4><div class="checkbox-group">${this.countries.map(c=>`<div class="checkbox-chip"><input type="checkbox" id="fc_${c}" ${fl.countries.includes(c)?'checked':''} onchange="App.toggleFilterCountry('${c}',this.checked)"><label for="fc_${c}">${c}</label></div>`).join('')}</div></div>
+      <div><h4>档位</h4><div class="checkbox-group">${['safe','match','reach'].map(c=>`<div class="checkbox-chip"><input type="checkbox" id="fk_${c}" ${fl.categories.includes(c)?'checked':''} onchange="App.toggleFilterCat('${c}',this.checked)"><label for="fk_${c}">${this.catLabel(c)}</label></div>`).join('')}</div></div>
+      <div><h4>QS 排名</h4><div style="display:flex;gap:.5rem;align-items:center;"><input type="number" class="form-input" style="padding:.35rem .5rem;" id="fRankMin" min="1" max="200" value="${fl.rankMin}" onchange="App.applyRankFilter()"><span style="color:var(--text-tertiary);">—</span><input type="number" class="form-input" style="padding:.35rem .5rem;" id="fRankMax" min="1" max="250" value="${fl.rankMax}" onchange="App.applyRankFilter()"></div></div>
+      <div><h4>学制</h4><div class="radio-group">${durOpts.map(d=>`<div class="radio-chip"><input type="radio" name="fduration" id="fd_${d}" ${fl.duration===d?'checked':''} onchange="App.setFilterDuration('${d}')"><label for="fd_${d}">${d}</label></div>`).join('')}<div class="radio-chip"><input type="radio" name="fduration" id="fd_all" ${!fl.duration?'checked':''} onchange="App.setFilterDuration('')"><label for="fd_all">不限</label></div></div></div>`;
+  },
+  toggleFilterCountry(c,on){ const a=this.state.filters.countries; const i=a.indexOf(c); if(on&&i<0)a.push(c); if(!on&&i>=0)a.splice(i,1); this.renderList(true); },
+  toggleFilterCat(c,on){ const a=this.state.filters.categories; const i=a.indexOf(c); if(on&&i<0)a.push(c); if(!on&&i>=0)a.splice(i,1); this.renderList(true); },
+  applyRankFilter(){ this.state.filters.rankMin=parseInt($('fRankMin').value)||1; this.state.filters.rankMax=parseInt($('fRankMax').value)||250; this.renderList(true); },
+  setFilterDuration(d){ this.state.filters.duration=d; this.renderList(true); },
+  clearFilters(){ this.state.filters={countries:[],categories:['safe','match','reach'],rankMin:1,rankMax:250,duration:''}; this.renderFilters(); this.renderList(true); },
+  handleSort(v){ this.state.sortBy=v; this.renderList(true); },
+  getFiltered(){
+    const fl=this.state.filters;
+    let r=this.state.results.filter(x=>fl.categories.includes(x.category))
+      .filter(x=>!fl.countries.length||fl.countries.includes(x.university.country))
+      .filter(x=>x.university.qsRank>=fl.rankMin&&x.university.qsRank<=fl.rankMax)
+      .filter(x=>!fl.duration||x.university.duration===fl.duration);
+    if(this.state.sortBy==='rank')r.sort((a,b)=>a.university.qsRank-b.university.qsRank);
+    else if(this.state.sortBy==='tuition')r.sort((a,b)=>a.university.tuitionRange[0]-b.university.tuitionRange[0]);
+    else r.sort((a,b)=>b.probability-a.probability);
+    return r;
+  },
+  renderList(reset){
+    if(reset||this._renderCount===undefined) this._renderCount=30;
+    const results=this.getFiltered();
+    $('resultsCount').textContent=`共 ${results.length} 所大学`;
+    const box=$('universityList');
+    if(!results.length){
+      box.innerHTML=`<div class="empty-state card"><div class="empty-state-icon">🔍</div><h3>未找到符合条件的大学</h3><p>建议放宽筛选条件，探索更多可能性</p><button class="btn btn-primary" onclick="App.clearFilters()">清除所有筛选</button></div>`;
+      return;
+    }
+    const shown=results.slice(0,this._renderCount);
+    box.innerHTML=shown.map((r,i)=>this.renderCard(r,i)).join('')
+      +(results.length>this._renderCount?`<div style="text-align:center;padding:.4rem 0 1rem;"><button class="btn btn-secondary" onclick="App.loadMore()">加载更多（还有 ${results.length-this._renderCount} 所）</button></div>`:'');
+    setTimeout(()=>document.querySelectorAll('.progress-fill-bar').forEach(b=>b.style.width=b.dataset.width+'%'),80);
+  },
+  loadMore(){ this._renderCount+=30; this.renderList(); },
+  renderCard(r,i){
+    const u=r.university,color=this.catColor(r.category),label=this.catLabel(r.category);
+    const gpa=parseFloat(this.state.form.gpa)||0,ielts=parseFloat(this.state.form.ielts)||0;
+    const exp=this.state.expandedCards.has(u.id);
+    const gpaOk=gpa>=u.avgGpaRequired,ieltsOk=ielts>=u.avgIeltsRequired;
+    return `<div class="university-card" style="animation:fadeIn .4s ease ${i*0.04}s both;" onclick="App.toggleCard('${u.id}')">
+      <div class="university-card-left">
+        <div class="probability-number" style="color:${color};">${r.probability}%</div>
+        <div class="probability-label" style="color:${color};">${label}</div>
+        <div class="progress-track"><div class="progress-fill-bar" data-width="${r.probability}" style="width:0;background:${color};"></div></div>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.8rem;margin-bottom:.4rem;">
+          <div style="min-width:0;">
+            <h3 style="font-size:1.02rem;margin-bottom:.2rem;display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;">${u.name}<span style="font-size:.8rem;font-weight:400;color:var(--text-tertiary);">${u.nameEn}</span></h3>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap;"><span class="badge">QS #${u.qsRank}</span><span class="badge">${u.country} · ${u.city}</span><span class="badge">${u.duration}</span></div>
+          </div>
+          <a href="${u.website}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="white-space:nowrap;" onclick="event.stopPropagation();">官网
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:.5rem;font-size:.82rem;">
+          <div><span style="color:var(--text-tertiary);">GPA 要求：</span><span style="font-weight:600;color:${gpaOk?'var(--safe)':'var(--reach)'};">${u.avgGpaRequired} ${gpaOk?'✓':'↑'}</span></div>
+          <div><span style="color:var(--text-tertiary);">雅思要求：</span><span style="font-weight:600;color:${ieltsOk?'var(--safe)':'var(--reach)'};">${u.avgIeltsRequired} ${ieltsOk?'✓':'↑'}</span></div>
+          <div><span style="color:var(--text-tertiary);">年学费：</span><span style="font-weight:600;">$${u.tuitionRange[0].toLocaleString()}-${u.tuitionRange[1].toLocaleString()}</span></div>
+        </div>
+        <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:.35rem;">${r.matchReason}</p>
+        <div style="display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--text-tertiary);">
+          <span>${exp?'收起详情':'点击查看项目与建议'}</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .3s;transform:${exp?'rotate(180deg)':'none'};"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+        <div class="card-details ${exp?'expanded':''}" onclick="event.stopPropagation();">
+          <div class="detail-grid">
+            <div class="detail-item"><h4>你的 GPA</h4><p>${gpa.toFixed(2)} / 4.0</p></div>
+            <div class="detail-item"><h4>你的雅思</h4><p>${ielts.toFixed(1)} / 9.0</p></div>
+            <div class="detail-item"><h4>录取率参考</h4><p>${Math.max(5,Math.min(50,Math.round(30*Math.exp(-0.01*u.qsRank)+5)))}%</p></div>
+            <div class="detail-item"><h4>申请截止</h4><p>${u.programs[0].deadline}</p></div>
+          </div>
+          <h4 style="font-size:.83rem;margin-bottom:.5rem;">推荐项目</h4>
+          ${u.programs.map(p=>`<div class="program-item"><h4>${p.name}</h4><div class="program-meta"><span>截止日期：${p.deadline}</span></div><div class="program-reqs">${p.requirements.map(q=>`<span class="req-tag">${q}</span>`).join('')}</div></div>`).join('')}
+          ${r.suggestions.length?`<div class="suggestions"><h4>💡 提升建议</h4><ul>${r.suggestions.map(s=>`<li>${s}</li>`).join('')}</ul></div>`:''}
+        </div>
+      </div></div>`;
+  },
+  toggleCard(id){ this.state.expandedCards.has(id)?this.state.expandedCards.delete(id):this.state.expandedCards.add(id); this.renderList(); },
+
+  /* ---------- 评估记录 ---------- */
+  getHistory(){ const u=Auth.currentUser(); if(!u)return[]; try{return JSON.parse(localStorage.getItem('admitpath-history-'+u.username)||'[]');}catch(e){return[];} },
+  saveHistory(counts){
+    const u=Auth.currentUser(); if(!u)return;
+    const list=this.getHistory();
+    list.unshift({at:Date.now(),gpa:this.state.form.gpa,ielts:this.state.form.ielts,major:this.state.form.major,counts,form:this.state.form,preferences:this.state.preferences,results:this.state.results,aiReport:this.state.aiReport,aiSource:this.state.aiSource});
+    localStorage.setItem('admitpath-history-'+u.username,JSON.stringify(list.slice(0,10)));
+  },
+  openHistory(){
+    const list=this.getHistory();
+    $('historyList').innerHTML=list.length?list.map((h,i)=>`
+      <div class="history-item">
+        <div class="info"><div class="t">${new Date(h.at).toLocaleString('zh-CN')} · ${h.major}</div>
+        <div class="d">GPA ${h.gpa} · 雅思 ${h.ielts} · 保底 ${h.counts.safe} / 匹配 ${h.counts.match} / 冲刺 ${h.counts.reach}</div></div>
+        <button class="btn btn-secondary btn-sm" onclick="App.loadHistory(${i})">查看结果</button>
+      </div>`).join('')
+      :`<div class="empty-state"><div class="empty-state-icon">📋</div><h3>暂无评估记录</h3><p>完成一次智能评估后会自动保存到这里</p><button class="btn btn-primary" onclick="App.closeModal('historyModal');App.go('assess')">去评估</button></div>`;
+    this.openModal('historyModal');
+  },
+  loadHistory(i){
+    const h=this.getHistory()[i]; if(!h)return;
+    this.state.form=h.form; this.state.preferences=h.preferences; this.state.results=h.results;
+    this.state.aiReport=h.aiReport; this.state.aiSource=h.aiSource||'内置智能引擎';
+    this.state.filters={countries:[...h.preferences.countries],categories:['safe','match','reach'],rankMin:h.preferences.rankMin,rankMax:h.preferences.rankMax,duration:h.preferences.duration==='不限'?'':h.preferences.duration};
+    this.closeModal('historyModal');
+    $('navResults').style.display='';
+    this.renderForm(); this.renderResultsPage(); this.go('results');
+  },
+
+  /* ---------- 初始化 ---------- */
+  init(){
+    Settings.load(); Settings.apply();
+    const sf=localStorage.getItem('admitpath-form'),sp=localStorage.getItem('admitpath-prefs');
+    if(sf)try{Object.assign(this.state.form,JSON.parse(sf));}catch(e){}
+    if(sp)try{Object.assign(this.state.preferences,JSON.parse(sp));}catch(e){}
+    this.renderForm();
+    document.addEventListener('click',e=>{ if(!e.target.closest('.account-menu-wrap')) this.closeAccountMenu(); });
+    document.querySelectorAll('.modal-mask').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m)m.classList.remove('open'); }));
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ if(Settings.data.theme==='system')Settings.apply(); });
+    if(Auth.currentUser()) this.enterApp();
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>App.init());
+</script>
+</body>
+</html>
